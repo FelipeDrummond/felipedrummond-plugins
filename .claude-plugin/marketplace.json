@@ -1,0 +1,19 @@
+{
+  "name": "felipedrummond-plugins",
+  "owner": {
+    "name": "Felipe Drummond",
+    "email": "felipe2002drummond@gmail.com",
+    "url": "https://github.com/felipedrummond"
+  },
+  "metadata": {
+    "description": "Felipe Drummond's collection of Claude Code plugins and skills."
+  },
+  "plugins": [
+    {
+      "name": "linear-agent-tickets",
+      "source": "./linear-agent-tickets",
+      "description": "Author agent-ready Linear tickets with Q/A clarification and a parallel multi-agent council critique.",
+      "version": "0.2.0"
+    }
+  ]
+}
