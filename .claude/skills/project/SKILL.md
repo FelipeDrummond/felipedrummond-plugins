@@ -62,3 +62,27 @@ This is where you push back. If the hypothesis isn't falsifiable as written, or 
 hand-wavy, or there's no off-ramp — surface it now and resolve it with the user. Gates in the
 next step are impossible without it. Push on the *plan and the claim's testability*; do not
 re-litigate the idea.
+
+## 3 · Design the gated milestone arc
+
+Lay out the project as an ordered sequence of milestones from day 0 to publication, ordered so
+the **cheapest experiments that could kill the idea come first**. A useful default backbone —
+adapt it, don't apply it blindly:
+
+> setup & instrumentation → de-risking pilot(s) → core experiments → generalization / robustness → writeup & submission
+
+**Gates are the spine.** A gate is a milestone's exit decision: a measurable criterion plus the
+branches you'll take on the outcome — at least one of which is *not* "proceed". Write them in
+prose, e.g.:
+
+> **M3 — D-arm viability (pilot) [G2]** — train g(z,a) from rollouts, measure prediction R²
+> across N. **Gate G2:** R²(N=16) ≥ 0.3 → D is alive, proceed to the main sweep; 0.1–0.3 →
+> implement the counterfactual-delta variant first; < 0.1 → off-ramp to the A-only paper.
+
+Put a gate only where there's a genuine go/no-go — a pilot, a viability check, a scope lock.
+Most milestones ("build the loss", "write the paper") have no gate; don't invent one.
+
+For each milestone, capture in prose: its deliverables, its gate (if any), a target date inside
+the project's window, an optional resource/compute cost, and which milestone(s) it depends on.
+Dates increase; dependencies form a chain, not a cycle. This is guidance you apply, not a form
+you fill — there is no linter, and the human approves the result.
