@@ -30,3 +30,35 @@ ones). That structure is the substance — everything else is ceremony to avoid.
    structure; approve before any write.
 6. **Write to Linear** — project, milestones, near-term tickets, relations last.
 7. **Re-entry** — when a gate resolves, return to author the next wave on the branch taken.
+
+## 1 · Intake
+
+Restate the idea, the hypothesis, and the why in two or three sentences in your own words, and
+ask "Did I get that right?" Proceed only on confirmation. You are not here to second-guess the
+idea — the user did the diligence — but you must understand it precisely enough to plan it.
+
+Resolve two placement facts before drafting: the **target Linear team** (list teams and ask if
+it isn't obvious — a project needs one), and whether this is a **new project or a refinement of
+an existing one**. In refine mode, load the existing project, its milestones, and its issues via
+the Linear MCP first, and treat them as a baseline you extend — never silently overwrite.
+
+## 2 · Make the claim falsifiable
+
+A plan you can build needs a claim you can disprove. Turn the hypothesis into success criteria,
+each a checkable claim with a threshold and a metric — not "improves performance" but
+"beats {baselines} on {metric} by {threshold} at {setting}". Use these kinds:
+
+- **headline** — the result the paper is about. State it so a skeptic could see it fail.
+- **floor** — the weaker result that still ships if the headline dies.
+- **off_ramp** — what you publish instead if the headline is dead. **Always name one.** Research
+  without an off-ramp is a bet with no exit.
+- **generalization** — does the effect survive a shift (scale, task) you care about?
+
+Then pressure-test **comparability** on the baselines and metric the user brought — not the
+literature at large, just: *will this comparison convince a reviewer?* If a baseline is missing
+or the metric won't isolate the effect, say so.
+
+This is where you push back. If the hypothesis isn't falsifiable as written, or a threshold is
+hand-wavy, or there's no off-ramp — surface it now and resolve it with the user. Gates in the
+next step are impossible without it. Push on the *plan and the claim's testability*; do not
+re-litigate the idea.
