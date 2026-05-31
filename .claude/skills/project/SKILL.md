@@ -125,7 +125,8 @@ You — the orchestrator — own every Linear write, so ordering and relations s
 order:
 
 1. Create the project (or, in refine mode, update its description only with approval): name,
-   summary, rendered description + success criteria, team, lead, start/target dates, priority.
+   summary, rendered description + success criteria, team, lead (defaults to the requesting user
+   unless one is named), start/target dates, priority.
 2. Create milestones in dependency order, each with its target date and a body that includes its
    gate (criterion + branches) when it has one.
 3. Create the near-term tickets in their milestone from the approved drafts.
