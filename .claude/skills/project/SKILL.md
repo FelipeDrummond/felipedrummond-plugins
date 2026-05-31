@@ -86,3 +86,58 @@ For each milestone, capture in prose: its deliverables, its gate (if any), a tar
 the project's window, an optional resource/compute cost, and which milestone(s) it depends on.
 Dates increase; dependencies form a chain, not a cycle. This is guidance you apply, not a form
 you fill — there is no linter, and the human approves the result.
+
+## 4 · Author the near-term wave
+
+Gated research means most downstream tickets are **contingent** — you cannot author the main
+sweep before the pilot gate tells you which arm to sweep. So plan in a rolling wave:
+
+- Build the **full milestone arc** now (cheap, and it's the real plan).
+- Fully author tickets **only up to the first unresolved gate** — the work that is certain to
+  happen (setup, the first pilot).
+- Leave gated-downstream milestones as **gate + a one-line intent**. Their tickets get authored
+  later, on re-entry, once the gate resolves and the branch is known.
+
+**Delegate ticket authoring to the `ticket` skill.** Front-load all clarification here at the
+project level so the subagents never need to stop and ask. For each near-term ticket, spawn a
+`Task` subagent that:
+
+- is told to author the ticket by applying `.claude/skills/ticket/SKILL.md`;
+- receives the project description, its milestone, the sibling ticket titles, and the ticket's
+  intent as context;
+- runs **non-interactively** — it returns a ticket draft; if it hits a genuine blocking
+  ambiguity it returns that as a flagged question instead of asking the user.
+
+Spawn the wave's subagents in parallel (one message, multiple `Task` calls). Collect the drafts;
+batch any flagged questions back to the user in **one** consolidated round.
+
+## 5 · Review with the human
+
+Present the project description, success criteria, the milestone arc, and the near-term ticket
+drafts. The human resolves any flagged questions, **sets priority, and sets due dates** — never
+invent either. Confirm the gate structure. Get explicit approval before any write to Linear.
+In refine mode (an existing project), get explicit approval for anything that renames, moves, or
+removes existing milestones/issues — never clobber silently.
+
+## 6 · Write to Linear
+
+You — the orchestrator — own every Linear write, so ordering and relations stay consistent. In
+order:
+
+1. Create the project (or, in refine mode, update its description only with approval): name,
+   summary, rendered description + success criteria, team, lead, start/target dates, priority.
+2. Create milestones in dependency order, each with its target date and a body that includes its
+   gate (criterion + branches) when it has one.
+3. Create the near-term tickets in their milestone from the approved drafts.
+4. Set milestone/ticket `blocked_by` / `blocks` and parent/child relations **last**, so
+   referenced ids resolve.
+
+Render everything as clean Markdown. Never paste the planning Q&A into descriptions. Return the
+project URL and a one-line-per-milestone summary.
+
+## 7 · Re-entry
+
+When a gate resolves, the user returns with the outcome. Load the existing project + milestones
+(refine mode), pick the branch the gate selected, and author the next wave of tickets for the
+now-unblocked milestone(s) — same delegation, same review, same write order. The downstream that
+the gate ruled out stays unbuilt.
