@@ -141,3 +141,17 @@ When a gate resolves, the user returns with the outcome. Load the existing proje
 (refine mode), pick the branch the gate selected, and author the next wave of tickets for the
 now-unblocked milestone(s) — same delegation, same review, same write order. The downstream that
 the gate ruled out stays unbuilt.
+
+## Keep it light
+
+The structure that earns its place is gates and off-ramps. Everything else is prose. Avoid the
+ceremony this skill exists to replace:
+
+| Don't | Do |
+|---|---|
+| A YAML schema the plan must fill | Prose description + a tight milestone list |
+| A gate on every milestone | Gates only on real go/no-go points |
+| Authoring the whole project into tickets up front | Rolling wave — near-term only, gate + intent downstream |
+| Inventing priority or due dates | Leave them for the human |
+| `SPECIFIED / AGENT_DECIDES`, LoC estimates, scope-fence headings | Plain prose; trust the ticket skill for ticket-level detail |
+| Re-arguing the idea | Pressure-test the plan and the claim's testability |
