@@ -8,5 +8,12 @@
   "metadata": {
     "description": "Felipe Drummond's collection of Claude Code plugins and skills."
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "linear-planning",
+      "source": "./linear-planning",
+      "description": "Lightweight, prose-first Linear skills: author agent-ready tickets, and plan ML research projects as gated milestone arcs from day 0 to publication.",
+      "version": "0.1.0"
+    }
+  ]
 }

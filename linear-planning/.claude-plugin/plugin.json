@@ -1,0 +1,12 @@
+{
+  "name": "linear-planning",
+  "displayName": "Linear Planning",
+  "version": "0.1.0",
+  "description": "Lightweight, prose-first Linear skills: author agent-ready tickets, and plan ML research projects as gated milestone arcs from day 0 to publication.",
+  "keywords": ["linear", "tickets", "projects", "planning", "research"],
+  "author": {
+    "name": "Felipe Drummond",
+    "email": "felipe2002drummond@gmail.com",
+    "url": "https://github.com/felipedrummond"
+  }
+}

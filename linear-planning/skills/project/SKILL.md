@@ -102,7 +102,7 @@ sweep before the pilot gate tells you which arm to sweep. So plan in a rolling w
 project level so the subagents never need to stop and ask. For each near-term ticket, spawn a
 `Task` subagent that:
 
-- is told to author the ticket by applying `.claude/skills/ticket/SKILL.md`;
+- is told to author the ticket by applying the sibling `ticket` skill;
 - receives the project description, its milestone, the sibling ticket titles, and the ticket's
   intent as context;
 - runs **non-interactively** — it returns a ticket draft; if it hits a genuine blocking
