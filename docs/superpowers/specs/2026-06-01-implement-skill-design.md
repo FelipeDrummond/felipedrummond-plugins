@@ -52,7 +52,9 @@ the sibling skills: don't re-implement what a trusted skill already encodes.
    acceptance-criteria checklist becomes the literal **success contract**. Honor any agent
    constraints the ticket carries ("leave X untouched", "stop and ask if Y").
 4. **Research (in plan mode).** Explore the real code with `Task`/Explore subagents to ground
-   the plan in what exists, not guesses.
+   the plan in what exists, not guesses. Read the project's prose context too — a `docs/`
+   directory (design specs, plans, architecture notes) often carries the *why* behind the
+   code; consult it alongside the source so the plan respects decisions already made.
 5. **Plan.** Delegate to superpowers **`writing-plans`** to turn the acceptance criteria into
    an implementation plan; present it via **ExitPlanMode** for approval. ← the plan-mode
    handoff.
