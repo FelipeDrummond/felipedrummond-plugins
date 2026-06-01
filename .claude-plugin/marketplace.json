@@ -1,0 +1,12 @@
+{
+  "name": "felipedrummond-plugins",
+  "owner": {
+    "name": "Felipe Drummond",
+    "email": "felipe2002drummond@gmail.com",
+    "url": "https://github.com/felipedrummond"
+  },
+  "metadata": {
+    "description": "Felipe Drummond's collection of Claude Code plugins and skills."
+  },
+  "plugins": []
+}
