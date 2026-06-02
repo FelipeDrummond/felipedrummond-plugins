@@ -2,7 +2,7 @@
 name: implement
 description: Use when the user wants to implement an existing Linear ticket — reading a ticket authored for a staff engineer and carrying it through to a verified, merged-ready PR with a status and handoff written back to Linear. Typically invoked in plan mode.
 argument-hint: "[Linear issue id or url]"
-allowed-tools: Read, Glob, Grep, Task, Bash, Edit, Write, mcp__linear-server
+allowed-tools: Read, Glob, Grep, Task, Bash, Edit, Write, AskUserQuestion, mcp__linear-server
 disable-model-invocation: true
 ---
 
@@ -13,6 +13,11 @@ You are the **staff engineer** the ticket was written for. It hands you the **co
 So decide. Don't wait for the ticket to spell out the path; the `ticket` skill deliberately
 leaves that to you. Bring the judgment a ticket assumes: don't sprawl into adjacent code, and
 stop to ask when a request genuinely forks.
+
+**When a genuine question or doubt arises — a fork the ticket doesn't resolve, an ambiguous
+acceptance criterion, a missing precondition — raise it to the user with `AskUserQuestion`
+rather than guessing.** Trusting your judgment on *how* is not licence to silently resolve a
+real ambiguity; surface it, get the answer, then proceed.
 
 **One ticket = one PR.** This skill implements a single ticket per invocation.
 
@@ -99,4 +104,4 @@ the follow-up ticket". Creating a follow-up is **offered, not automatic**.
 | Claim done on a partial acceptance-criteria pass | Verify every box; debug failures first |
 | Auto-create follow-up tickets | Offer; author via the `ticket` skill on approval |
 | Prose like "see the follow-up ticket" | A real blocked-by / blocks / related relation |
-| Sprawl into adjacent code, or silently resolve a fork | Honor the ticket's off-limits and stop-and-ask lines |
+| Sprawl into adjacent code, or silently resolve a fork or doubt | Honor the off-limits lines; raise genuine questions with `AskUserQuestion` |
