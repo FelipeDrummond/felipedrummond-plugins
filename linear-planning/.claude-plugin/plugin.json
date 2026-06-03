@@ -1,9 +1,9 @@
 {
   "name": "linear-planning",
   "displayName": "Linear Planning",
-  "version": "0.2.0",
-  "description": "Lightweight, prose-first Linear skills: author agent-ready tickets, plan ML research projects as gated milestone arcs from day 0 to publication, and implement tickets to a verified PR with handoff written back to Linear.",
-  "keywords": ["linear", "tickets", "projects", "planning", "research", "implement"],
+  "version": "0.3.0",
+  "description": "Lightweight, prose-first Linear skills: author agent-ready tickets, plan ML research projects as gated milestone arcs from day 0 to publication, implement tickets to a verified PR with handoff written back to Linear, and explain agent-written PRs to cut noise and over-engineering.",
+  "keywords": ["linear", "tickets", "projects", "planning", "research", "implement", "explain", "pr-review"],
   "author": {
     "name": "Felipe Drummond",
     "email": "felipe2002drummond@gmail.com",
