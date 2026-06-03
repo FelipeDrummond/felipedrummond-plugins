@@ -41,14 +41,18 @@ intent, and holding the simplicity stance. Generic work is delegated.
 1. **Resolve the PR.** Take the PR number/url from the argument; if none was given, ask —
    don't guess from the current branch. Use `gh pr view` and `gh pr diff` for the title, body,
    changed files, and diff. You are expected to be inside a checkout of the PR's repo.
-2. **Find where the project is heading.** Extract the Linear ticket id from the PR title,
-   branch, or body and fetch it with the Linear MCP (`get_issue` → `get_project`) to learn the
-   intent the work was meant to serve. If no ticket link is discoverable, ask the user for one
-   rather than inventing project intent.
-3. **Situate.** Dispatch `Task`/Explore subagents to read the touched modules and the project's
-   prose context (a `docs/` directory often carries the *why*) so your judgments are grounded in
-   the real repo, not the diff alone. Agent-heavy repos tend to carry verbose docs — read enough
-   to judge, don't drown in them.
+2. **Establish the two reference frames** that *Fit* is judged against — don't conflate them:
+   - **Where the project *is*** (the present, the past): what's already merged on `main` /
+     `develop`. This is the code the PR builds on.
+   - **Where the project is *heading*** (the future): the end goal and milestones — usually the
+     linked Linear **project's description and milestones**, the originating ticket, and the
+     repo's `docs/`. Get this from Linear: extract the ticket id from the PR title, branch, or
+     body and fetch it (`get_issue` → `get_project`). If no link is discoverable, ask the user
+     for the ticket rather than inventing project intent.
+3. **Situate.** Dispatch `Task`/Explore subagents to gather both frames from the real repo, not
+   the diff alone: the merged code around the touched modules (where the project *is*) and the
+   project's prose context in `docs/` (often the *why* behind where it's *heading*). Agent-heavy
+   repos tend to carry verbose docs — read enough to judge, don't drown in them.
 4. **Produce the explanation.** The five-section contract below, in the terminal.
 5. **Offer the handoff.** See below. Nothing is written without explicit approval.
 
@@ -58,8 +62,9 @@ Deliver these five sections, in order, in the terminal:
 
 1. **Core** — what this PR actually *does*, in plain English (≤1 short paragraph), plus the
    handful of changes that *are* the change. Signal, not the full diff dump.
-2. **Fit** — how it connects to the ticket and project, and where the project is heading. Say so
-   plainly when the agent over-reached scope or solved a problem nobody has.
+2. **Fit** — measured against both frames: does it build coherently on where the project *is*
+   (the merged code), and does it serve where the project is *heading* (its end goal and
+   milestones)? Say so plainly when the agent over-reached scope or solved a problem nobody has.
 3. **Cuts** — over-documentation and speculative config/flexibility. Each item: a `file:line`
    and one line on why it's noise.
 4. **Names** — confusing names (the `_maybe_add_arm_a` smell) → a concrete rename, with a

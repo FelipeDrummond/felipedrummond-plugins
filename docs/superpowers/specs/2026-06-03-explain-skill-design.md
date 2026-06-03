@@ -58,12 +58,17 @@ Consistent with the plugin's prose-first, delegation-heavy style (mirrors `imple
 
 1. **Resolve the PR.** Take PR number/url from the argument; if absent, ask — don't guess
    from the current branch. Use `gh pr view` / `gh pr diff` for title, body, diff, files.
-2. **Find "where are we heading."** Extract the Linear ticket id from the PR title/branch/
-   body, `get_issue` → `get_project` for intent. If no link is discoverable, ask the user
-   for the ticket rather than inventing project intent.
-3. **Situate.** Dispatch Explore/`Task` subagents to read the touched modules and `docs/` so
-   judgments are grounded in the real repo, not the diff alone. (Agent-heavy repos tend to
-   carry verbose docs; read enough to judge, don't drown.)
+2. **Establish the two reference frames** that *Fit* is judged against — they are distinct:
+   - **Where the project *is*** (present/past): what's merged on `main` / `develop` — the code
+     the PR builds on.
+   - **Where the project is *heading*** (future): the end goal and milestones, usually in the
+     linked Linear **project's description and milestones**, the originating ticket, and `docs/`.
+     Extract the ticket id from the PR title/branch/body, `get_issue` → `get_project`. If no
+     link is discoverable, ask the user for the ticket rather than inventing project intent.
+3. **Situate.** Dispatch Explore/`Task` subagents to gather both frames from the real repo, not
+   the diff alone: merged code around the touched modules (where it *is*) and the project's
+   prose context in `docs/` (the *why* behind where it's *heading*). Agent-heavy repos tend to
+   carry verbose docs; read enough to judge, don't drown.
 4. **Produce the 5-section explanation** (§4).
 5. **Offer the handoff** (§5).
 
@@ -73,8 +78,9 @@ Delivered in the **terminal only**. Five fixed sections:
 
 1. **Core** — what this PR actually *does*, plain English, ≤1 short paragraph, plus the
    handful of changes that *are* the change (signal, not the full diff dump).
-2. **Fit** — how it connects to the ticket/project and where the project is heading. Names
-   it plainly when the agent over-reached scope or solved a non-problem.
+2. **Fit** — measured against both frames: does it build coherently on where the project *is*
+   (merged code), and does it serve where it's *heading* (end goal + milestones)? Names it
+   plainly when the agent over-reached scope or solved a non-problem.
 3. **Cuts** — over-documentation and speculative config/flexibility, each with `file:line`
    and a one-line "why this is noise."
 4. **Names** — confusing names (the `_maybe_add_arm_a` smell) → concrete rename suggestions
