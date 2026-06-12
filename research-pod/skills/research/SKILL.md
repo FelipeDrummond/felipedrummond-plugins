@@ -43,7 +43,7 @@ invocation creates its own **pod team** (driver + engineers), torn down per mile
 - `linear-planning` plugin — `project` and `ticket` skills
 - `pod-milestone`, `pod-engineer`, `pod-merge-driver`, `pod-linear`, `pod-teardown` skills
 - `superpowers` plugin
-- Claude Code team features: `TeamCreate`, `TaskCreate`, `TaskUpdate`, `SendMessage`, `Agent`
+- Claude Code team features: `TeamCreate`, `SendMessage`, `Agent`
 - Linear CLI or Linear MCP; `gh` and `git` on `$PATH`
 
 ## Phase 0 — Mode detect
@@ -109,15 +109,17 @@ Loop until the publication milestone is done or an off-ramp is taken:
 5. **Re-plan the wave.** Re-invoke `Skill("linear-planning:project", ...)` in refine mode
    on the existing project to author the next ticket wave on the chosen branch. Its
    refine-mode approval gate covers any change to existing milestones.
-6. **Retire the junior.** The finishing junior runs `pod-teardown` for its own pod team;
-   confirm, log the retirement, then shut the junior down. Loop.
+6. **Retire the junior.** The junior's `pod-milestone` run already tears down its own pod
+   team (its Phase 5 delegates to `pod-teardown`); confirm that happened, log the
+   retirement, then shut the junior down. Loop.
 
 ## Phase 3 — Wind-down
 
 When the publication milestone completes or an off-ramp is published: send the user a final
-summary (headline result or off-ramp taken, milestones run, budget spent vs ceiling), have
-any remaining juniors run `pod-teardown`, delete the project team, and append a closing log
-line.
+summary (headline result or off-ramp taken, milestones run, budget spent vs ceiling),
+confirm every junior's pod team was torn down (each `pod-milestone` run ends with
+`pod-teardown` — trigger it for any that didn't), delete the project team, and append a
+closing log line.
 
 ## Escalation matrix (principal → user)
 
@@ -167,8 +169,8 @@ stop restating the fact in prose — chat points to the log.
 
 ## Failure handling
 
-- **Junior dies or stalls mid-milestone** → ping once, then replace via a fresh brief; the
-  replacement recovers from the log + Linear.
+- **Junior dies or stalls mid-milestone** → ping once; no response in ~10 minutes → replace
+  via a fresh brief; the replacement recovers from the log + Linear.
 - **Experiment infra unreachable** → junior escalates to you; retry/reschedule yourself;
   escalate to the user only if it blocks a gate.
 - **`/project` re-entry would rename/move/remove existing milestones** → its refine-mode
