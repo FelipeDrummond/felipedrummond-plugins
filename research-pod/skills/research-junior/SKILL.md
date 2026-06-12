@@ -40,7 +40,8 @@ gate, report up. The brief explicitly bans talking to the user and exceeding the
 
 - `team_name` — the project team (NOT a pod team; the junior creates its own pod team).
 - `agent_name` — e.g. `junior-m3`.
-- `milestone_id` — the Linear milestone this junior owns.
+- `milestone_id` — short label of the Linear milestone this junior owns (e.g. `M3`); used
+  in log lines, matching the principal's.
 - `project_url` — the Linear project.
 - `charter_doc` — URL of the charter document on the project (runbook, budget caps,
   escalation preferences).
@@ -76,11 +77,16 @@ launch, gate report), format {"ts":"...","role":"junior","milestone":"{milestone
 - Read prior log lines for this milestone in {log_path} — if a previous junior worked it,
   resume from their last logged step; do not redo finished work.
 - Your gate: {gate}
+- If {gate} or any other input disagrees with the milestone in Linear, Linear wins — it is
+  ground truth.
 
 ## 2 · Build
-- cd {repo_root}. Invoke Skill("pod-milestone", args="tickets=<this milestone's ticket
-  selector> base_branch={base_branch}") — YOU are that pod's coordinator; follow that
-  skill's procedure end-to-end, including its Phase 5 teardown via pod-teardown.
+- cd {repo_root}. Invoke Skill("pod-milestone", args="tickets=<the milestone's full Linear
+  name, verbatim as read in Orient> base_branch={base_branch}") — pod-milestone resolves a
+  milestone name to its open tickets. YOU are that pod's coordinator; follow that skill's
+  procedure end-to-end, including its Phase 5 teardown via pod-teardown. Log "build done"
+  only after the pod team is torn down — the principal reads that line as teardown
+  confirmation.
 - Exception: a 1-ticket milestone is pod-milestone's own "when NOT to use" — dispatch a
   single general-purpose Sonnet agent for the ticket instead.
 - Before calling the build done, review the merged work against RESEARCH intent: right
