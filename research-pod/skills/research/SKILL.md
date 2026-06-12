@@ -65,6 +65,8 @@ invocation creates its own **pod team** (driver + engineers), torn down per mile
      metrics land (wandb, CSV, logs), how to tell a run is healthy vs dead.
    - **Budget ceiling** — overall compute budget and a per-milestone cap; what counts as an
      overrun.
+   - **Repo & base branch** — absolute path to the project checkout, and the base branch
+     pods branch from (confirm it; don't assume `develop`). Passed to every junior.
    - **Escalation preferences** — notification cadence/channel, anything the user wants
      gated beyond the default matrix below.
 3. **Write the charter as a Linear document on the project** (juniors read it from there —

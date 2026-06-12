@@ -107,7 +107,8 @@ Loop until the publication milestone is done or an off-ramp is taken:
      user (non-blocking).
    - Ambiguous / off-ramp / budget- or direction-touching → escalate and wait.
 5. Re-enter `/project` (refine mode) to author the next ticket wave on the chosen branch.
-6. Have the finished junior run `pod-teardown` for its pod, retire the junior, log, loop.
+6. Confirm the finished junior's `pod-milestone` run tore down its own pod team (its
+   Phase 5 delegates to `pod-teardown`), retire the junior, log, loop.
 
 ### Phase 3 — Wind-down
 
