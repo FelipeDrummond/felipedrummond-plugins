@@ -38,21 +38,42 @@ whole project) carries principal ↔ junior messaging; each junior's `pod-milest
 invocation creates its own **pod team** (driver + engineers), torn down per milestone via
 `pod-teardown`.
 
+## When to use
+
+- An ML research idea you want carried from day 0 toward publication with minimal
+  supervision — multiple milestones, gates, and experiment waves.
+- Resuming a research-pod project after days away, a gate resolution, or a dead session.
+
+## When NOT to use
+
+- A single experiment or a handful of tickets — invoke `linear-planning:project` and
+  `linear-planning:implement` directly; the principal/junior machinery is overhead.
+- Work that isn't Linear-tracked, or a repo the pod skills can't operate on (no `gh`/CI).
+- Literature research — this skill executes experiments; it doesn't survey fields.
+
 ## Prerequisites
 
 - `linear-planning` plugin — `project` and `ticket` skills
 - `pod-milestone`, `pod-engineer`, `pod-merge-driver`, `pod-linear`, `pod-teardown` skills
 - `superpowers` plugin
 - Claude Code team features: `TeamCreate`, `SendMessage`, `Agent`
+- PAL MCP server (`mcp__pal__challenge`)
 - Linear CLI or Linear MCP; `gh` and `git` on `$PATH`
 
-## Phase 0 — Mode detect
+## Phase 0 — Mode detect & preflight
 
 - Args contain a **new idea** (hypothesis + why) → kickoff (Phase 1).
 - Args name an **existing Linear project**, or `~/.claude/research/<project-slug>/` already
   exists → recovery: run the recovery steps in *State & recovery*, then resume the cycle
   wherever it left off — mid-milestone, awaiting a gate, or awaiting a user answer to an
   escalation. Never re-kickoff a project that already has a log.
+
+Either way, **preflight before spending tokens**: the `linear-planning` and `pod-*` skills
+are installed; Linear (CLI or MCP) responds authenticated — a 401 is an immediate stop,
+never proceed without ticket truth; `gh auth status` succeeds. In kickoff mode the repo
+checks run once the charter names the checkout (Phase 1); in recovery mode run them now:
+`git fetch origin && git status` clean on the base branch, and `git worktree list` for
+leftovers from a previous run.
 
 ## Phase 1 — Kickoff
 
@@ -69,6 +90,8 @@ invocation creates its own **pod team** (driver + engineers), torn down per mile
      pods branch from (confirm it; don't assume `develop`). Passed to every junior.
    - **Escalation preferences** — notification cadence/channel, anything the user wants
      gated beyond the default matrix below.
+   Then run the deferred repo preflight: `git fetch origin && git status` clean on the base
+   branch, `git worktree list` free of leftovers — surface problems before any junior spawns.
 3. **Write the charter as a Linear document on the project** (juniors read it from there —
    it is ground truth, not session state). Log its URL.
 4. **Create the project team**: `TeamCreate(team_name=research-<project-slug>,
@@ -103,8 +126,10 @@ Loop until the publication milestone is done or an off-ramp is taken:
    **iff** the question touches budget, research direction, or preference.
 4. **On a gate report**, decide:
    - The measured result lands **cleanly in a pre-declared branch** (written into the
-     milestone's gate at /project time) → take that branch autonomously; notify the user
-     without blocking.
+     milestone's gate at /project time) → self-challenge first: one `mcp__pal__challenge`
+     pass on the readout (criterion, measured values, chosen branch). If the decision
+     survives, take the branch autonomously and notify the user without blocking; if the
+     challenge punctures it, treat the result as ambiguous and escalate.
    - The result is **ambiguous / between branches**, the branch is an **off-ramp**, or
      taking it **changes budget or direction** → escalate per the matrix and wait.
    Log the decision either way.
@@ -149,6 +174,12 @@ Research spans days or weeks — longer than any session. State lives in two pla
 rule made it autonomous or escalated, every escalation and the user's answer, every
 re-plan. Juniors log their own claim / run-launch / gate-report lines. After appending,
 stop restating the fact in prose — chat points to the log.
+
+**Protect your context.** You are a long-lived Opus session; don't let raw output erode it.
+Whenever a `linear` / `gh` / log read would dump >50 lines into this session, dispatch a
+Sonnet subagent that reads the source and returns ≤10 lines. Trigger examples: a
+milestone-status sweep across the project, digesting a verbose gate report before deciding,
+scanning the log for unanswered escalations before wind-down.
 
 **Recovery** (run at Phase 0 in recovery mode, and whenever you suspect compaction):
 
