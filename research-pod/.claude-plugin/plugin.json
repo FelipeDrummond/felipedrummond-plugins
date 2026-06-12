@@ -1,0 +1,12 @@
+{
+  "name": "research-pod",
+  "displayName": "Research Pod",
+  "version": "0.1.0",
+  "description": "Autonomous research cycle on top of linear-planning and the pod-* skills: a principal researcher plans the gated arc via /project, spawns one junior researcher per unblocked milestone to build via pod-milestone and run the experiments, decides gate branches, and escalates only budget, research direction, and preference to the user.",
+  "keywords": ["research", "linear", "milestones", "pods", "experiments", "autonomous", "orchestration"],
+  "author": {
+    "name": "Felipe Drummond",
+    "email": "felipe2002drummond@gmail.com",
+    "url": "https://github.com/felipedrummond"
+  }
+}

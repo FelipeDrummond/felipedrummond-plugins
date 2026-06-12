@@ -14,6 +14,12 @@
       "source": "./linear-planning",
       "description": "Lightweight, prose-first Linear skills: author agent-ready tickets, plan ML research projects as gated milestone arcs from day 0 to publication, implement tickets to a verified PR with handoff written back to Linear, and explain agent-written PRs to cut noise and over-engineering.",
       "version": "0.3.0"
+    },
+    {
+      "name": "research-pod",
+      "source": "./research-pod",
+      "description": "Autonomous research cycle on top of linear-planning and the pod-* skills: a principal researcher plans the gated arc via /project, spawns one junior researcher per unblocked milestone to build via pod-milestone and run the experiments, decides gate branches, and escalates only budget, research direction, and preference to the user.",
+      "version": "0.1.0"
     }
   ]
 }
