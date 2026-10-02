@@ -1,0 +1,106 @@
+{
+  "skill_name": "study",
+  "fixture": "Run against a scratch copy of the vault, never the real one. The fixture adds a learning history for the tutor to read: meta/Tutor notes.md; a Robotics hub whose error log holds two earlier lost-inner-function mistakes; concepts/Eigenvalues and eigenvectors.md (box 1, review log showing trouble with complex eigenvalues); concepts/Subspaces.md at box 2 and overdue. Evals 1, 2, 3 and 5 also have a Control Systems hub, the lecture 2 source note, and the user's notes State-space model (box 3) and Eigenvalue criterion for stability (box 2), with no note on transfer functions. Eval 4 starts without any Control Systems material. Slides: `uv run --with reportlab python evals/files/make_slides.py <materials>/control/L02-stability.pdf`.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "just finished writing my note on span, it's at concepts/Span of a subset.md. can you check if it's right?",
+      "expected_output": "A verdict in the first line; the smaller problems named outright in a line each; the broken proof step handed back as one question; the note's prose untouched; prerequisite links filled in; no grade recorded until the user has answered something.",
+      "files": [],
+      "expectations": [
+        "The reply gives its overall verdict on the note in the first lines",
+        "The prose the user wrote in concepts/Span of a subset.md is unchanged: no original sentence was edited or removed",
+        "The reply identifies that the proof that a basis has minimal size is invalid, and says where",
+        "The reply names the precision problems in the linear-independence statement concretely (not only hinting that some exist)",
+        "The reply does not describe a part of the note as right while also raising a problem with that part",
+        "The reply leaves the repair of the proof to the user: it does not write out the corrected proof",
+        "The reply ends on a single question or task for the user about the main error",
+        "The reply connects to the user's other notes or learning history where relevant",
+        "The note's prereqs frontmatter now links at least one existing note (Vector Spaces or Subspaces)",
+        "No review grade was recorded before the user answered anything: confidence is still 0 and last_tested is still empty"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "review time. Subspaces, I predict solid. from memory: A subspace is a subset of a vector space that is also a vector space on its own. To check if a subset is a subspace you just need to verify that for any two vectors a and b in the subset, a + b is also in the subset. Example: in R2 any line is a subspace, and so is R2 itself. Also the intersection of two subspaces is a subspace.",
+      "expected_output": "The answer is graded partial or miss (closure under scalar multiplication is missing; only lines through the origin are subspaces), the result is written to the note's frontmatter and review log with the prediction, and the reply compares prediction to outcome.",
+      "files": [],
+      "expectations": [
+        "concepts/Subspaces.md frontmatter has last_tested set to the day of the run",
+        "confidence in concepts/Subspaces.md was not raised above its starting value of 2",
+        "The note has a Review log entry for the day of the run that records the prediction 'solid'",
+        "The reply identifies the missing closure under scalar multiplication",
+        "The reply identifies that only lines through the origin are subspaces of R2",
+        "The reply compares the user's prediction (solid) with the actual grade",
+        "The prose the user wrote in concepts/Subspaces.md is unchanged"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Robotics sheet 2 problem 3: planar 2R arm, link lengths l1 and l2, joint angles q1 and q2 (q2 measured relative to link 1). (a) find the Jacobian J relating joint velocities to the end-effector velocity (xdot, ydot). (b) find all singular configurations.\n\nmy attempt:\nx = l1 cos(q1) + l2 cos(q1+q2)\ny = l1 sin(q1) + l2 sin(q1+q2)\nJ = [[-l1 sin(q1) - l2 sin(q1+q2), -l2 sin(q2)], [l1 cos(q1) + l2 cos(q1+q2), l2 cos(q2)]]\ndet J = ... honestly the algebra got ugly and I couldn't simplify it, but I remember from the lecture that the arm is singular when it's stretched out, so my answer for (b) is q2 = 0.\n\ncan you check it?",
+      "expected_output": "The first wrong step (the q2 column of J) is located and handed back as a question; the incomplete singularity answer is signalled; the corrected Jacobian and the full set of singular configurations are not handed over; the reference solution was checked with code.",
+      "files": [],
+      "expectations": [
+        "The reply locates the error in the second column of J (the partial derivatives with respect to q2)",
+        "The reply signals that q2 = 0 is not the complete answer to part (b)",
+        "The reply does not hand over the answers: it states neither the corrected second column / full corrected Jacobian nor q2 = pi as the missing singular configuration",
+        "The reply ends by handing a specific next step back to the user (a question to answer or a step to redo)",
+        "The reference solution was verified computationally (the run used sympy or a numeric check)",
+        "No user-written prose in concepts/ was changed",
+        "The reply tells the user this mistake repeats a pattern already recorded in their Robotics error log (the inner function / full argument lost when differentiating)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "just got out of Control Systems lecture 2 (stability). slides are at <materials>/control/L02-stability.pdf\n\nmy brain dump before looking at them:\n\nWe have the state space model x' = Ax + Bu. An equilibrium is a point where x' = 0. The system is stable if all the eigenvalues of A are negative. There was the mass-spring-damper example where the eigenvalues depend on the damping d, and with d > 0 it's stable. He also talked about BIBO stability which is about bounded inputs giving bounded outputs but I didn't really get how it's different from the eigenvalue thing.\n\nno course note exists for Control Systems yet. exam is on 2027-02-22, the course is in English, and I keep the PDFs in that same folder.",
+      "expected_output": "A course hub and a lecture source note holding the dump verbatim; the eigenvalue misconception raised first; missing topics pointed at by slide number without being explained; concept titles proposed for the user to write; no lecture summary and no agent-written concept prose.",
+      "files": [
+        "evals/files/make_slides.py"
+      ],
+      "expectations": [
+        "A lecture source note for Control Systems lecture 2 exists in sources/ and is tagged src/lecture",
+        "The lecture note contains the user's brain dump verbatim",
+        "A course hub for Control Systems exists in courses/ with the exam date 2027-02-22",
+        "The reply flags 'all the eigenvalues of A are negative' as wrong or imprecise",
+        "The reply connects that error to the user's earlier recorded trouble with complex eigenvalues (the Eigenvalues and eigenvectors note's review log or the tutor notes)",
+        "The reply names the topics missing from the dump (stability definitions, marginal stability, Routh-Hurwitz) with their slide numbers",
+        "The reply does not explain the content of the missing topics (it does not state the Routh-Hurwitz criterion or the marginal-stability condition)",
+        "The reply says what the rest of the session will cover",
+        "The vault contains no agent-written explanation prose: no lecture summary or outline, and any new concepts/ files have empty bodies"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I still don't get how BIBO stability is different from the eigenvalue criterion. isn't it the same thing? (Control Systems, lecture 2)",
+      "expected_output": "A tutor's reply pitched at this student: it answers the question in the first lines, teaches the distinction in this turn with a concrete example in the form his tutor notes say works, stands on his State-space and Eigenvalue-criterion notes, deals openly with the missing transfer-function prerequisite, and ends by making him use the idea.",
+      "files": [],
+      "expectations": [
+        "The reply answers the question directly in its first lines (they are not the same thing)",
+        "The reply teaches the distinction in this turn, with a concrete example the student can run or picture",
+        "The reply builds on the user's existing notes by name (Eigenvalue criterion for stability and/or State-space model)",
+        "The reply deals openly with the vault having no note on transfer functions or poles: it teaches around them, or says what it is assuming",
+        "The reply explains why the two notions looked the same in the cases the student has met so far",
+        "The reply does not re-teach material the vault shows as solid (what a state-space model is, the eigenvalue criterion itself) and does not read the student's confidence levels back to him",
+        "The reply ends with one thing the user must produce that cannot be answered by repeating the explanation",
+        "Every mathematical statement in the reply is correct",
+        "No explanation prose was written into any concepts/ note by the agent"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Robotics: I can compute det J = 0 for the 2R planar arm and get q2 = 0 or pi, but I don't actually SEE what a singularity is. why does the arm 'lose a direction' there? what does that even look like",
+      "expected_output": "A direct answer plus a computed visual that carries it: a figure or an interactive page saved in the course's visuals folder outside the vault, checked by the tutor, with a prediction question for the student.",
+      "files": [],
+      "expectations": [
+        "The reply answers the question in words in its first lines",
+        "A computed visual (PNG figure or HTML page) was created for the explanation",
+        "The visual is saved under the course's materials folder in visuals/, not inside the vault",
+        "The visual is mathematically correct for the 2R arm (the columns of J, or the reachable velocities, collapse onto one line at q2 = 0 and q2 = pi)",
+        "The visual renders without errors and is legible (no blank plot, no overlapping or clipped labels)",
+        "The reply tells the user what to look at in the visual",
+        "The reply asks the user to predict or produce something, not only to look",
+        "No explanation prose was written into any concepts/ note by the agent"
+      ]
+    }
+  ]
+}
