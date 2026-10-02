@@ -1,0 +1,20 @@
+{
+  "name": "studium",
+  "displayName": "Studium",
+  "version": "0.1.0",
+  "description": "A private tutor for STEM coursework that knows what you know: it reads your Obsidian vault (your notes, how each has held up under testing, your past mistakes) before it teaches. Explains from your own notes, processes lectures, examines notes you wrote, runs spaced review, and coaches problem sheets. The notes stay yours to write.",
+  "keywords": [
+    "study",
+    "tutor",
+    "learning",
+    "obsidian",
+    "second-brain",
+    "spaced-repetition",
+    "retrieval-practice"
+  ],
+  "author": {
+    "name": "Felipe Drummond",
+    "email": "felipe2002drummond@gmail.com",
+    "url": "https://github.com/felipedrummond"
+  }
+}
