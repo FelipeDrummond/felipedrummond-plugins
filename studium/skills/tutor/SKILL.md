@@ -70,7 +70,7 @@ Chat holds only this: the verdict, the reason, the record line and the next ques
 | No roadmap yet, or "set up" | Setup | `references/setup.md` |
 | Anything about studying, a topic, a lecture, "quiz me" (the default) | Session | `references/session.md` |
 | The weekly review block, or a scheduled prompt naming review mode | Review | `references/review.md`, then `references/session.md` |
-| A repair session planned in `open.json`, or he asks to fix a gap | Repair | `references/repair.md`, then `references/session.md` |
+| A repair waiting in `open.json` (offer it first, in one question: is this block the repair?), or he asks to fix a gap | Repair | `references/repair.md`, then `references/session.md` |
 | Exam practice, past papers, timed problems | Exam | `references/exam.md` |
 
 If the mode is unclear, ask one question. Whatever the mode, a topic listed by `due --for session` comes first: within the time limit in `references/session.md`, or in review mode ahead of the block's own list (`references/review.md`).

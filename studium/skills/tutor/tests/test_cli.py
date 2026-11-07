@@ -155,6 +155,12 @@ def test_block_action_null_block_date_still_validates_other_fields(tmp_path):
     assert out.returncode == 2 and "completed" in out.stderr
 
 
+def test_block_action_invalid_non_null_block_date_names_field(tmp_path):
+    _state(tmp_path, block_date="nope")
+    out = run(tmp_path, "block-action", "--block-date", "2026-11-20")
+    assert out.returncode == 2 and "block_date" in out.stderr
+
+
 def test_block_action_bad_state_file(tmp_path):
     (tmp_path / "review_state.json").write_text('{"block_date": "nope"}')
     out = run(tmp_path, "block-action", "--block-date", "2026-11-20")

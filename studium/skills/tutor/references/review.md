@@ -28,22 +28,22 @@ Setup creates it with every id and `block_date` null: `block_date` null means no
 
 Run this at the close of every session, repair, exam practice and review (the step in `references/session.md`, Closing). It keeps exactly one event and one task for the next block, or none.
 
-1. **The block date** is the next `review_weekday` on or after today. If that is today and `review_state.json` has today's block with `completed: true`, it is the same weekday next week.
+1. **The block date `D`** is the first `review_weekday`, today included, whose `review_time` is still ahead of now. On the review day after `review_time`, that is next week.
 2. `T block-action --block-date D`. It prints `create`, `update`, `delete` or `none`, and a warning line when the last two blocks both overflowed.
-3. **A stale block first.** If the stored block has a different `block_date` and `completed: false`, and it has an `event_id` or `task_id`, delete those first, whatever the action: `delete_event` (calendar `tutor_calendar` from config) and `delete_scheduled_task`. Set both ids to null. This is a block from an earlier week that never ran, or one from before the review day changed; its topics are still due, so they are in the new block.
+3. **A stale block first.** The stored block is stale if it is not completed and its `block_date` is earlier than `D` or not on `review_weekday` (a block that never ran, or one from before the review day changed). Delete its stored event and task first, whatever the action, and null each id as its delete succeeds. Its topics are still due, so they are in the new block.
 4. Act on the answer:
 
 | Answer | Do |
 |---|---|
-| `create` | Create the event and the task (below). Write `block_date: D`, both new ids, `completed: false`; keep `overflow_history`. |
-| `update` | If both ids are stored: `update_event` with the new title (the count changes), plus a new start time and `update_scheduled_task` with a new `fireAt` only if `review_time` changed. If the ids are null, create instead, as for `create`. |
-| `delete` | Nothing is due by `D` any more: `delete_event` and `delete_scheduled_task` by the stored ids, then set both ids to null. |
+| `create` | If the stored block is not completed and still holds an id (a later date, after `review_time` changed), delete it as for a stale block. Then write `block_date: D`, `completed: false` and both ids null, keeping `overflow_history`, and create the event and the task (below). |
+| `update` | Event: if its id is stored, `update_event` with the new title (the count changes), and new `startTime` and `endTime` only if `review_time` changed; if its id is null, create it. Task: if its id is stored, `update_scheduled_task` with a new `fireAt` only if `review_time` changed; if its id is null, create it. |
+| `delete` | Nothing is due by `D` any more: `delete_event` and `delete_scheduled_task` by the stored ids, nulling each id as its delete succeeds. |
 | `none` | Nothing to do: either nothing is due (a week with nothing due gets no block) or this block is already finished. |
 
-5. **The warning line**, if printed: tell him in the closing message that more is due than one block holds for the second week running, and that it is his decision whether to add a block. If he wants one, he starts a review himself in one of his own study blocks.
+5. **The warning line** is given once per block: only in the closing of a review block, never after ordinary sessions. Tell him that more is due than one block holds for the second week running, and that it is his decision whether to add a block. If he wants one, he starts a review himself in one of his own study blocks.
 6. Say in the closing message what changed, in one line: "[Weekly review: Sunday 16:00, 4 topics, event and reminder created.]"
 
-If a delete reports that the event or task no longer exists, carry on: he may have removed it. Any other error from the calendar or the scheduler: tell him, and change nothing else in the state file.
+**Ids are written as they are made.** Write each new id to `review_state.json` as soon as its call succeeds, before the next call, so a failure halfway leaves nothing untracked. Skip any update or delete whose stored id is null (for `update`, the row above creates the missing one instead), so a repeated `delete` does nothing. If a delete reports that the event or task no longer exists, null its id and carry on: he may have removed it. Any other error from the calendar or the scheduler: tell him, and stop changing the block.
 
 You only ever touch the event and the task whose ids are stored. Never edit or delete any other event.
 
@@ -52,22 +52,22 @@ You only ever touch the event and the task whose ids are stored. Never edit or d
 - Calendar: `tutor_calendar` from config. Class dates come from `class_calendar`, which is read-only.
 - Count: `N` is the number of topics `T due --for block --block-date D` prints (at most 6).
 - Check for clashes first: `list_events` on both calendars for the hour starting `review_time` on `D`. A clash is not an error and doesn't stop scheduling: create the event and the task at `review_time` anyway, and tell him in the closing message the clashing event's time and title. He decides whether to move the block; if he does, use `update_event` and `update_scheduled_task` with the new time.
-- `create_event`: `summary` "Tutor weekly review: N topics", start at `review_time` with `timeZone` from config, length `session_minutes`, `description` "Weekly retest block from the tutor. A review session should open by itself. If it doesn't, start /tutor in HOME_ABS and say: weekly review." (with `HOME`'s absolute path).
+- `create_event` on `tutor_calendar`: `summary` "Tutor weekly review: N topics"; `startTime` `D` at `review_time` and `endTime` `session_minutes` later, both local times without offset; `timeZone` from config; `description` "Weekly retest block from the tutor. A review session should open by itself. If it doesn't, start /tutor in HOME_ABS and say: weekly review." (with `HOME`'s absolute path). Store the returned event id.
 - **No topic names and no questions in the event or the task.** He knows a review is coming, not what it asks.
 
 ### Creating the task
 
-- `create_scheduled_task` with `taskId` `tutor-review-D`, `title` "Tutor weekly review", a one-line `description`, and `fireAt` at the event's start as ISO 8601 with the offset for that date: `python3 -c "from datetime import datetime; from zoneinfo import ZoneInfo; print(datetime(2026, 11, 15, 16, 0, tzinfo=ZoneInfo('Europe/Berlin')).isoformat())"` (date, time and zone from the block and config).
+- `create_scheduled_task` with `taskId` `tutor-review-D`, `title` "Tutor weekly review", a one-line `description`, and `fireAt` at the event's start as ISO 8601 with the offset for that date: `python3 -c "from datetime import datetime; from zoneinfo import ZoneInfo; print(datetime(2026, 11, 15, 16, 0, tzinfo=ZoneInfo('Europe/Berlin')).isoformat())"` (date, time and zone from the block and config). If the scheduler refuses the `taskId` as in use and suggests a free one, call again with the suggested one. Store the id the task was created with.
 - The task starts a fresh session in an unknown folder, runs only while the app is open, and otherwise runs at next launch. So its prompt must be self-contained. Fill in this template:
 
 ```text
 Use the tutor skill (/studium:tutor, or /tutor) in review mode for the weekly review block dated BLOCK_DATE.
 
-The tutor's home folder is HOME_ABS. Run its scripts with TUTOR_HOME=HOME_ABS, or pass --data HOME_ABS/data to tutorlog.py.
+The tutor's home folder is HOME_ABS. Run every script command with TUTOR_HOME=HOME_ABS set (tutorlog.py and flag.py alike), for example: TUTOR_HOME=HOME_ABS python3 SKILL_DIR/scripts/tutorlog.py due --for block
 
 First read HOME_ABS/data/review_state.json. If it is missing, if its block_date is not BLOCK_DATE, or if completed is true, reply with one line saying this review has nothing to do, and stop.
 
-Otherwise read SKILL_DIR/SKILL.md and SKILL_DIR/references/review.md, and run the review block as review.md says, waiting for the student's replies.
+Otherwise read SKILL_DIR/SKILL.md and SKILL_DIR/references/review.md, where S means SKILL_DIR, and run the review block as review.md says, waiting for the student's replies.
 ```
 
 `HOME_ABS` is `HOME` as an absolute path, read from where you resolved it now. `SKILL_DIR` is `S` as an absolute path now: the installed plugin's copy, or the repo checkout while the plugin isn't installed.
@@ -91,7 +91,7 @@ Load `references/session.md` too: the reply shape, clock, recording, confidence,
    4. **Record every answer** with `"surprise": true` (he knew a review was coming, not the questions), plus `"unseen_system": true` where it applies. All of a topic's items on one date are one retest: any answer that isn't correct fails it, and `record` sets the next date from that (a failure brings it back in 2 days, and `due --for session` then lists it first in any session, so it doesn't wait for the next block). Set `retest_without_notice` to `false` after it, and `patched` to `false` only if the retest passed.
    5. **Update the flag** (Flags, in `references/session.md`), and say in the record line whether the retest passed or failed.
 5. **Page:** the review's notes page is `HOME/pages/reviews/review-YYYY-MM-DD.html`, built as in `references/notes-page.md`.
-6. **Closing** at 5 minutes left or when the agenda is done. First, in `review_state.json`: if the stored block is not completed and its `block_date` is today or earlier, append the `overflow` number to `overflow_history` and set `completed: true`. Otherwise leave the file alone: a review he started before the block's day leaves that block in place (it shrinks, or goes when nothing is due), and a block replaced meanwhile by a later session's plan is not this one. Only then follow `references/session.md`, Closing; its step 3 runs "After any session that changes due dates" above, which now plans next week's block instead of touching this one.
+6. **Closing** at 5 minutes left or when the agenda is done. First, in `review_state.json`: if the stored block is not completed and its `block_date` is today or earlier, append the `overflow` number to `overflow_history` and set `completed: true`. Otherwise leave the file alone: a review he started before the block's day leaves that block in place (it shrinks, or goes when nothing is due), and a block replaced meanwhile by a later session's plan is not this one. Only then follow `references/session.md`, Closing; its step 3 runs "After any session that changes due dates" above, which then plans the next block without touching this one.
 
 ## Red flags
 

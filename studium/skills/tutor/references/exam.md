@@ -30,6 +30,7 @@ Exam results are marked separately from teaching evidence, and a correct exam pr
 T record SLUG --json '{"date": "2027-01-08", "kind": "mechanical", "result": "partial", "confidence": 4, "exam": true, "note": "exam-style, 18 of 25 min; sign error in the Jacobian"}'
 ```
 
+- If a topic has no topic file yet, create it first, with every field (`references/session.md`, Recording).
 - One problem touching several topics: record it in each topic file it tests.
 - Flags follow `tutorlog.py level` as in any session (Flags in `references/session.md`).
 - **A wrong or partial exam answer** goes in the topic's `mistakes`, in his words where useful. Set `"retest_without_notice": true` on that topic, with `next_due` within a week, so it comes back by surprise in a normal session. A deep gap it reveals goes to `repairs` in `open.json`, as in any session.
