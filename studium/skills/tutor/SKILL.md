@@ -73,7 +73,7 @@ Chat holds only this: the verdict, the reason, the record line and the next ques
 | A repair session planned in `open.json`, or he asks to fix a gap | Repair | `references/repair.md`, then `references/session.md` |
 | Exam practice, past papers, timed problems | Exam | `references/exam.md` |
 
-If the mode is unclear, ask one question. Whatever the mode, a topic listed by `due --for session` comes first, within the time limit in `references/session.md`.
+If the mode is unclear, ask one question. Whatever the mode, a topic listed by `due --for session` comes first: within the time limit in `references/session.md`, or in review mode ahead of the block's own list (`references/review.md`).
 
 ## References
 
