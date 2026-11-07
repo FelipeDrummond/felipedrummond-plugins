@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><!-- TITLE --></title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="../assets/notes.css">
+<script src="../assets/figures.js"></script>
+</head>
+<body>
+<main>
+  <div class="title">
+    <h1><!-- TITLE --></h1>
+    <p><!-- SUBTITLE: course, source, session number --></p>
+  </div>
+
+  <!-- SECTIONS: <h2>, <p>, .env, figure, .exercise, table.cal -->
+
+  <div class="sealed">
+    <ol>
+      <!-- SEALED: <li><span>Section title</span><span>opens after ...</span></li> -->
+    </ol>
+  </div>
+
+  <p class="record"><b>Evidence so far:</b> <!-- EVIDENCE --></p>
+</main>
+
+<script>
+// Figures: build SVG strings with TutorFig and assign to a <div id="figN"> inside a <figure>.
+window.addEventListener('DOMContentLoaded', () => {
+  renderMathInElement(document.body, {
+    delimiters: [{ left: '\\[', right: '\\]', display: true }, { left: '\\(', right: '\\)', display: false }],
+    throwOnError: false
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+html, body { background: #fff; }
+body { margin: 0; padding: 56px 16px 96px; color: #111; font-family: KaTeX_Main, "Latin Modern Roman", "Times New Roman", serif; font-size: 18px; line-height: 1.5; }
+main { max-width: 700px; margin: 0 auto; }
+.title { text-align: center; margin-bottom: 40px; }
+.title h1 { font-size: 26px; font-weight: 700; margin: 0 0 8px; line-height: 1.25; }
+.title p { margin: 2px 0; font-size: 15.5px; text-align: center; }
+h2 { font-size: 20px; font-weight: 700; margin: 34px 0 10px; }
+p { margin: 0 0 12px; text-align: left; }
+.env { margin: 14px 0; }
+.env .head { font-weight: 700; }
+.env .body { font-style: normal; }
+.katex-display { margin: 12px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+figure { margin: 22px 0 18px; }
+figure svg { display: block; width: 100%; height: auto; }
+figcaption { font-size: 15.5px; line-height: 1.4; margin-top: 8px; }
+figcaption b { font-weight: 700; }
+.exercise { border: 1px solid #111; padding: 14px 18px 6px; margin: 22px 0; }
+.exercise .head { font-weight: 700; }
+.reply { font-size: 15.5px; border-top: 1px solid #bbb; margin-top: 12px; padding-top: 8px; }
+.sealed { border-top: 1px solid #111; margin-top: 34px; padding-top: 10px; }
+.sealed ol { list-style: none; margin: 0; padding: 0; color: #666; font-size: 16.5px; }
+.sealed li { display: flex; justify-content: space-between; gap: 20px; padding: 3px 0; flex-wrap: wrap; }
+.sealed li span:last-child { font-size: 14.5px; font-style: italic; }
+table.cal { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 16px; }
+table.cal caption { text-align: left; font-size: 15.5px; margin-bottom: 8px; }
+table.cal th { text-align: left; font-weight: 700; border-top: 1.5px solid #111; border-bottom: 1px solid #111; padding: 5px 12px 5px 0; }
+table.cal td { padding: 4px 12px 4px 0; vertical-align: top; }
+table.cal tbody tr:last-child td { border-bottom: 1.5px solid #111; }
+.record { font-size: 15px; border-top: 1px solid #111; margin-top: 30px; padding-top: 8px; }
+svg text { font-family: KaTeX_Main, "Times New Roman", serif; font-size: 15px; fill: #111; }
+svg .m { font-family: KaTeX_Math, "Times New Roman", serif; font-style: italic; }
