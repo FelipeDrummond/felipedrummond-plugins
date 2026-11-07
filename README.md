@@ -32,24 +32,26 @@ Requires a Linear MCP server named `linear-server` in the environment that runs 
 /plugin install studium@felipedrummond-plugins
 ```
 
-A private tutor for M.Sc. coursework that knows what I know. Before it teaches, it reads the Obsidian vault: my notes in my own words, how each has held up under testing, my past mistakes. One skill, `/study`, with five loops. The notes stay mine to write.
+A one-to-one tutor for M.Sc. coursework, built around one worry: thinking I understand something I don't. It tests before it teaches, gives blunt verdicts and counterexamples, and counts nothing as understood until I pass again days later without notice. One skill, `/tutor` (or `/studium:tutor`), which picks its mode from what I say and what is due.
 
-| Loop | Description |
+| Mode | Description |
 |------|-------------|
-| `/study teach` | Explain a concept I don't understand, starting from the notes I already have solid, finding the missing prerequisite, and checking by having me explain it back. |
-| `/study intake` | Before a lecture: pretest questions from the slides. After: free-recall dump compared against the slides, the misconception first, missing topics by slide number, and concept stubs to write. |
-| `/study examine` | Oral exam on a concept note I wrote: correctness, depth probes aimed at my weak points, prerequisites and links. Never edits the prose. |
-| `/study review` | Spaced retrieval of whatever is due, interleaved across courses, graded and written back to the note's frontmatter. |
-| `/study drill` | Exercise sheets and old exams: attempt first, a hint ladder, independently verified solutions, and an error log whose patterns it watches for. |
+| Setup | First run: collects the review block's day and time, the end goal and exam dates, and proposes a roadmap built backward from the goal, with a value tier and reason for each topic. |
+| Session | One 1-hour block on a topic: overdue retests first, a prerequisite quiz, the motivation, then one question per message, with the full mathematics on a notes page beside the chat. |
+| Review | The weekly retest block: explain from memory, then new questions on an unseen system aimed at past weak spots. |
+| Repair | A separate block on a deep gap found during a session, such as linear systems. |
+| Exam | Practice in the style of the course's exams, logged separately so it can't raise a flag by itself. |
 
-`scripts/vault.py` reads and updates the knowledge state: `profile` (what I know, weakest first, with prerequisites and recent results), `status` (what is due) and `record` (write a result). Scheduling is a Leitner system stored in each concept note's own `confidence` / `last_tested` frontmatter. `meta/Tutor notes.md` in the vault is the tutor's memory of how I learn between sessions.
+Two scripts, standard library only:
+- `scripts/tutorlog.py` keeps the evidence log: dated test results with kind, confidence and hints, the understanding level the evidence supports, retest due dates, the weekly block's plan, and a session clock.
+- `scripts/flag.py` is the only code that touches the vault. It sets or removes one frontmatter property, `understanding: moderate | good | deep`, and confirms everything else in the note is byte-for-byte unchanged. It also finds a note by title when it has moved.
 
-Explanations are visual where the idea has a shape or moves: computed matplotlib figures, or small interactive pages with sliders built from `assets/explorable.html`. They are computed from the mathematics, never image-generated, checked by the tutor before I see them, and saved outside the vault next to the course PDFs.
+Everything personal lives in a private home folder, `~/Documents/tutor` (or `$TUTOR_HOME`), never in this repo: the log, roadmap, settings, notes pages, a Python environment for checking the mathematics, and the local server that shows the pages in the app's browser pane. The vault is read, never written, apart from the flag.
 
 ## Design notes
 
 - `/project` design + eval live in [`docs/superpowers/specs`](./docs/superpowers/specs) and [`linear-planning/skills/project/eval`](./linear-planning/skills/project/eval).
-- `/study` design, with the learning research behind each choice, lives in [`docs/superpowers/specs/2026-10-01-study-skill-design.md`](./docs/superpowers/specs/2026-10-01-study-skill-design.md).
+- `/tutor` replaced `/study` in November 2026. The earlier `/study` spec is kept for its research notes in [`docs/superpowers/specs/2026-10-01-study-skill-design.md`](./docs/superpowers/specs/2026-10-01-study-skill-design.md).
 
 ## Layout
 
