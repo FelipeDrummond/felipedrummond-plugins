@@ -5,9 +5,18 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from test_load import make_topic
-from tutorlog import load_topics, save_topic
+from tutorlog import Evidence, load_topics, save_topic
 
 SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "tutorlog.py"
+
+
+def write_config(data, target="2027-02-01"):
+    data.mkdir(parents=True, exist_ok=True)
+    (data / "config.json").write_text(json.dumps({"target_date": target}))
+
+
+def topics(data):
+    return data / "topics"
 
 
 def run(data, *args):
@@ -18,7 +27,8 @@ def run(data, *args):
 def seed(data, count, **over):
     for i in range(count):
         save_topic(make_topic(slug=f"topic-{i}", name=f"Topic {i}", evidence=[],
-                              next_due=date(2026, 11, 1) + timedelta(days=i), **over), data)
+                              next_due=date(2026, 11, 1) + timedelta(days=i), **over), topics(data))
+    write_config(data)
 
 
 def test_due_session_lists_at_most_two(tmp_path):
@@ -42,29 +52,30 @@ def test_record_adds_evidence_and_updates_next_due(tmp_path):
     ev = {"date": "2026-11-20", "kind": "state", "result": "correct", "surprise": True}
     out = run(tmp_path, "record", "topic-0", "--json", json.dumps(ev))
     assert out.returncode == 0, out.stderr
-    topic = load_topics(tmp_path)[0]
+    topic = load_topics(topics(tmp_path))[0]
     assert len(topic.evidence) == 1
     assert topic.next_due == date(2026, 11, 27)
     ev["date"] = "2026-11-27"
     run(tmp_path, "record", "topic-0", "--json", json.dumps(ev))
-    assert load_topics(tmp_path)[0].next_due == date(2026, 12, 18)
+    assert load_topics(topics(tmp_path))[0].next_due == date(2026, 12, 18)
     ev.update(date="2026-12-18", result="wrong")
     run(tmp_path, "record", "topic-0", "--json", json.dumps(ev))
-    assert load_topics(tmp_path)[0].next_due == date(2026, 12, 20)
+    assert load_topics(topics(tmp_path))[0].next_due == date(2026, 12, 20)
 
 
 def test_record_non_surprise_keeps_next_due(tmp_path):
     seed(tmp_path, 1)
     ev = {"date": "2026-11-20", "kind": "state", "result": "correct"}
     assert run(tmp_path, "record", "topic-0", "--json", json.dumps(ev)).returncode == 0
-    assert load_topics(tmp_path)[0].next_due == date(2026, 11, 1)
+    assert load_topics(topics(tmp_path))[0].next_due == date(2026, 11, 1)
 
 
 def test_record_non_surprise_sets_next_due_when_none(tmp_path):
-    save_topic(make_topic(slug="x", evidence=[], next_due=None), tmp_path)
+    save_topic(make_topic(slug="x", evidence=[], next_due=None), topics(tmp_path))
+    write_config(tmp_path)
     ev = {"date": "2026-11-20", "kind": "state", "result": "correct"}
     assert run(tmp_path, "record", "x", "--json", json.dumps(ev)).returncode == 0
-    assert load_topics(tmp_path)[0].next_due == date(2026, 11, 27)
+    assert load_topics(topics(tmp_path))[0].next_due == date(2026, 11, 27)
 
 
 def test_record_rejects_bad_evidence_and_unknown_slug(tmp_path):
@@ -83,7 +94,8 @@ def test_level_and_summary(tmp_path):
 
 
 def test_broken_topic_file_exits_2_naming_file(tmp_path):
-    (tmp_path / "broken.json").write_text("{not json")
+    topics(tmp_path).mkdir()
+    (topics(tmp_path) / "broken.json").write_text("{not json")
     out = run(tmp_path, "due", "--for", "session")
     assert out.returncode == 2
     assert "broken.json" in out.stderr
@@ -138,8 +150,31 @@ def test_clock(tmp_path):
     assert 59 <= int(out.stdout.split()[0]) <= 60
 
 
-def test_state_and_config_files_are_not_topics(tmp_path):
-    seed(tmp_path, 1)
+
+def test_config_and_state_in_data_dir_do_not_disturb_due(tmp_path):
+    seed(tmp_path, 2)
     _state(tmp_path)
-    (tmp_path / "config.json").write_text("{}")
-    assert [t.slug for t in load_topics(tmp_path)] == ["topic-0"]
+    out = run(tmp_path, "due", "--for", "session", "--today", "2026-11-20")
+    assert out.returncode == 0 and out.stdout.count("Topic ") == 2
+
+
+def test_record_uses_target_date_from_config(tmp_path):
+    ev = json.dumps({"date": "2026-12-20", "kind": "state", "result": "correct", "surprise": True})
+    passes = [Evidence(date=date(2026, 12, d), kind="state", result="correct", surprise=True)
+              for d in (1, 10)]
+    for target, expected in (("2027-02-01", date(2027, 1, 18)), ("2027-06-01", date(2027, 2, 18))):
+        write_config(tmp_path, target)
+        save_topic(make_topic(slug="p", evidence=list(passes)), topics(tmp_path))
+        assert run(tmp_path, "record", "p", "--json", ev).returncode == 0
+        assert load_topics(topics(tmp_path))[0].next_due == expected
+
+
+def test_record_needs_valid_config(tmp_path):
+    seed(tmp_path, 1)
+    ev = json.dumps({"date": "2026-11-20", "kind": "state", "result": "correct"})
+    (tmp_path / "config.json").unlink()
+    out = run(tmp_path, "record", "topic-0", "--json", ev)
+    assert out.returncode == 2 and "config.json" in out.stderr
+    write_config(tmp_path, "soon")
+    out = run(tmp_path, "record", "topic-0", "--json", ev)
+    assert out.returncode == 2 and "target_date" in out.stderr

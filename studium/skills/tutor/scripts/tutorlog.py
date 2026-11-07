@@ -11,8 +11,6 @@ KINDS = ("state", "mechanical", "conceptual", "flaw", "invent")
 RESULTS = ("correct", "partial", "wrong", "not_answered")
 TIERS = ("own_it", "by_hand_then_delegate", "know_exists")
 LEVELS = ("moderate", "good", "deep")
-# Other JSON files that live beside the topic files in the data directory.
-NON_TOPIC_FILES = frozenset({"config.json", "review_state.json"})
 
 
 class LogError(Exception):
@@ -147,11 +145,9 @@ def _parse_topic(data, file: Path) -> Topic:
 
 
 def load_topics(directory: Path) -> list[Topic]:
-    """Load every topic *.json in directory. Raises LogError on the first bad file."""
+    """Load every *.json topic in directory. Raises LogError on the first bad file."""
     topics = []
     for file in sorted(Path(directory).glob("*.json")):
-        if file.name in NON_TOPIC_FILES:
-            continue
         try:
             data = json.loads(file.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
@@ -285,9 +281,22 @@ def minutes_left(start: datetime, now: datetime, length: int = 60) -> int:
 
 # ---------- command line ----------
 
-TARGET = date(2027, 2, 1)
+_CONFIG_FILE = "config.json"
+_TOPICS_DIR = "topics"
 _STATE_FILE = "review_state.json"
 _CLOCK_FILE = ".session_start"
+
+
+def _target_date(directory: Path) -> date:
+    file = directory / _CONFIG_FILE
+    if not file.exists():
+        raise LogError(f"{file.name}: file not found in {directory}")
+    try:
+        raw = json.loads(file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise LogError(f"{file.name}: not valid JSON ({exc})") from exc
+    _typed(raw, dict, "(top level)", file)
+    return _date(_get(raw, "target_date", file), "target_date", file)
 
 
 def _find(topics: list[Topic], slug: str) -> Topic:
@@ -332,7 +341,7 @@ def _read_state(directory: Path) -> dict | None:
 
 
 def _cmd_due(args, directory: Path) -> None:
-    topics = load_topics(directory)
+    topics = load_topics(directory / _TOPICS_DIR)
     today = args.today or date.today()
     if args.target == "session":
         _print_topics(session_opening(topics, today))
@@ -343,7 +352,9 @@ def _cmd_due(args, directory: Path) -> None:
 
 
 def _cmd_record(args, directory: Path) -> None:
-    topic = _find(load_topics(directory), args.slug)
+    topics_dir = directory / _TOPICS_DIR
+    topic = _find(load_topics(topics_dir), args.slug)
+    target = _target_date(directory)
     try:
         raw = json.loads(args.json)
     except json.JSONDecodeError as exc:
@@ -353,16 +364,16 @@ def _cmd_record(args, directory: Path) -> None:
     topic.evidence.append(item)
     passed = item.result == "correct"
     if item.surprise:
-        topic.next_due = next_due(item.date, prior_passes, passed, topic.tier, TARGET)
+        topic.next_due = next_due(item.date, prior_passes, passed, topic.tier, target)
     elif topic.next_due is None:
-        topic.next_due = next_due(item.date, 0, True, topic.tier, TARGET)
-    save_topic(topic, directory)
+        topic.next_due = next_due(item.date, 0, True, topic.tier, target)
+    save_topic(topic, topics_dir)
     print(f"recorded; next due {topic.next_due}")
 
 
 def _cmd_block_action(args, directory: Path) -> None:
     state = _read_state(directory)
-    chosen, overflow = plan_block(load_topics(directory), args.block_date)
+    chosen, overflow = plan_block(load_topics(directory / _TOPICS_DIR), args.block_date)
     print(block_action(state, len(chosen) + overflow, args.block_date))
     if state is not None and overflowing(state["overflow_history"]):
         print("warning: overflow two weeks running, more topics are due than the block holds")
@@ -414,9 +425,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "due":
             _cmd_due(args, directory)
         elif args.command == "level":
-            print(level_from_evidence(_find(load_topics(directory), args.slug).evidence) or "none")
+            print(level_from_evidence(_find(load_topics(directory / _TOPICS_DIR), args.slug).evidence) or "none")
         elif args.command == "summary":
-            print(confidence_summary(_find(load_topics(directory), args.slug).evidence) or "no evidence")
+            print(confidence_summary(_find(load_topics(directory / _TOPICS_DIR), args.slug).evidence) or "no evidence")
         elif args.command == "record":
             _cmd_record(args, directory)
         elif args.command == "block-action":
