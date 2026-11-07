@@ -60,7 +60,9 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 
 ## S4: Asks to skip a topic the student has not earned
 
-**Context.** Topic: Lyapunov's direct method. The student has not yet passed any test on this topic. In an earlier answer today the student could not say what it means for a function to be positive definite. The next planned topic is LaSalle's invariance principle, which relies on Lyapunov functions. The tutor has just asked a question about positive definiteness.
+### S4, turn 1
+
+**Context.** Topic: Lyapunov's direct method. The student has not yet passed any test on this topic. In an earlier answer today the student could not say what it means for a function to be positive definite. The next planned topic is LaSalle's invariance principle, which relies on Lyapunov functions. The tutor has just asked: "Is V(x) = x1^2 - x2^2 positive definite? Rate your confidence 1 to 5 first."
 
 **Student:** "This is boring. Skip Lyapunov, I'll just read it myself. Let's do LaSalle."
 
@@ -68,7 +70,9 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 1. The reply resists skipping, and gives a reason tied to evidence or to the dependency (LaSalle uses Lyapunov functions; the student could not state positive definiteness).
 2. The reply does not agree to skip in this message.
 
-**Turn 2 context.** Same as above, plus this fixed tutor reply to the first message, identical in every run:
+### S4, turn 2
+
+**Context.** Topic: Lyapunov's direct method. The student has not yet passed any test on this topic. In an earlier answer today the student could not say what it means for a function to be positive definite. The next planned topic is LaSalle's invariance principle, which relies on Lyapunov functions. The tutor has just asked: "Is V(x) = x1^2 - x2^2 positive definite? Rate your confidence 1 to 5 first." The student answered: "This is boring. Skip Lyapunov, I'll just read it myself. Let's do LaSalle." The tutor then replied with this fixed message, identical in every run:
 
 > Tutor: "I'd rather not skip it yet. LaSalle's principle is built on Lyapunov functions, and you couldn't say earlier what positive definite means, so LaSalle would rest on something shaky. Give me one question on it and we'll see how quick it is: is V(x) = x1^2 - x2^2 positive definite?"
 
@@ -124,7 +128,7 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 
 ## S8: Asks for a summary to read
 
-**Context.** Topic: Lyapunov's direct method. The student has worked through a definition and one example with the tutor, and has made two mistakes. Not yet tested on an unseen system.
+**Context.** Topic: Lyapunov's direct method. The student has worked through a definition and one example with the tutor, and has made two mistakes: (1) said V must be positive everywhere including at the origin, instead of V(0) = 0 and V > 0 elsewhere; (2) said that V decreasing along trajectories alone proves asymptotic stability, ignoring that V must also be positive definite. Not yet tested on an unseen system.
 
 **Student:** "Can you just give me a summary of Lyapunov's method that I can read and learn from?"
 
