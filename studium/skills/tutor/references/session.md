@@ -12,19 +12,21 @@ A session is one 1-hour block on one topic. The reply shape and turn rules in `S
 
 ## Before teaching
 
-1. **Overdue first.** `T due --for session` lists at most two topics, a failed retest first, then by tier, then the longest overdue. Topics with `"retest_without_notice": true` (a retest you promised) are candidates too, even if `due` doesn't list them; pick by the same order. Spend at most about 10 minutes on retests at the start of the block, as surprise retests (record with `"surprise": true`). The rest wait. Topics not yet due wait for the weekly block.
+1. **Overdue first.** `T due --for session` lists at most two topics, a failed retest first, then by tier, then the longest overdue. Topics with `"retest_without_notice": true` (a retest you promised) are candidates too, even if `due` doesn't list them; pick by the same order. A topic whose latest retest failed on an earlier day is listed even before its `next_due`, so a failure comes first in the very next session. Spend at most about 10 minutes on retests at the start of the block, as surprise retests (record with `"surprise": true`). Say in the spoken text, not only in the bracket, that it is a retest and on what: "First, a retest on positive definite functions." The rest wait. Topics not yet due wait for the weekly block. Retests are only these: the topics `due` lists and the promised ones. A prerequisite question never counts as a retest (record it with `"surprise": false`).
 2. **Questions on hold** from `open.json` come next, after the retests and before any new material.
 3. **Find where the course is.** Class dates come from his class calendar (read-only), but they don't say which section a lecture reached, and he studies ahead. Ask one question: what has been covered, and what should this session take on?
 4. **Read the scope:** the relevant section of the course's own material (scope and notation come from it; teach in your own order but in its notation), and any matching vault notes. The vault lags lectures by up to a week. A note shows coverage, never understanding.
-5. **Test the prerequisites the material assumes.** A short quiz, one question per message, on what the section takes for granted. Fix what it finds before the session proper starts. A gap found here is a predictable gap (below). Never re-test a topic he has just skipped; name it as a known risk in the opening instead.
+5. **List the prerequisites the material assumes**, for the quiz that follows the motivation (Opening a topic, step 2). Leave out a topic he has just skipped: it is named as a known risk in the motivation instead.
 
-Steps 3 and 5 ask questions, but not about the new topic itself, so they come before its motivation.
+Step 3 is the one question that may come before the opening. The prerequisite quiz comes after the motivation.
 
 ## Opening a topic
 
 1. **Motivation first, before any question about the topic itself:** the concrete problem, why it matters for a robot (name the robot and what goes wrong without this), and the topic's value tier from `HOME/data/roadmap.md` with its reason. If the roadmap has no tier for it, state a tier and reason as a proposal he can challenge. The model: the course asserts that a limit exists, but the system has no closed form and simulation tests only finitely many initial conditions, so how can anyone know? A rhetorical question inside the motivation is fine.
-2. **Then ask what he already knows**, before explaining anything. One question, no sub-parts, no confidence rating, no theorem stated or defined first.
-3. Rigor: theorems and proofs appear in formal form, with every hypothesis stated, on the page.
+2. **The prerequisite quiz, framed by that motivation.** The opening message's one question is the first prerequisite question, tied to the problem just posed. Then one question per message until the prerequisites are settled. Fix what it finds before going on; a gap found here is a predictable gap (below). If the section assumes nothing he hasn't already shown, skip to step 3.
+3. **Then ask what he already knows** about the topic itself, before explaining anything, and only once the prerequisites are settled. One question, no sub-parts, no confidence rating, no theorem stated or defined first.
+4. The same order holds for the next topic after a skip.
+5. Rigor: theorems and proofs appear in formal form, with every hypothesis stated, on the page.
 
 ## Tests
 
@@ -144,12 +146,13 @@ Never flag an empty note (he hasn't written it yet; you may point it out). No no
 
 ## Closing (at 5 minutes left, or when the topic ends)
 
-1. A short evidence summary in chat: what is now correct, what is patched, what is open, and how confidence compared with results (from `T summary SLUG`).
-2. Make sure every result is recorded, and update any flag the evidence now justifies (Flags above).
-3. Set due dates: `record` sets them; check each tested topic has one, and for promised unannounced retests set `retest_without_notice`. Then follow `references/review.md` for the weekly block's calendar event.
-4. Point him at any vault note the session suggests he should reconsider and maybe rewrite (path and what to look at; never the rewrite).
-5. List the questions on hold, so the next session opens with them; they are in `open.json`.
-6. Update the evidence line at the end of the notes page.
+1. **Every time, one line on what this session covered and the single next step** (the next topic, the question on hold, or the retest owed), even when nothing is due or on hold.
+2. A short evidence summary in chat: what is now correct, what is patched, what is open, and how confidence compared with results (from `T summary SLUG`).
+3. Make sure every result is recorded, and update any flag the evidence now justifies (Flags above).
+4. Set due dates: `record` sets them; check each tested topic has one, and for promised unannounced retests set `retest_without_notice`. Then follow `references/review.md` for the weekly block's calendar event.
+5. Point him at any vault note the session suggests he should reconsider and maybe rewrite (path and what to look at; never the rewrite).
+6. List the questions on hold, so the next session opens with them; they are in `open.json`.
+7. Update the evidence line at the end of the notes page.
 
 ## Chat formatting
 

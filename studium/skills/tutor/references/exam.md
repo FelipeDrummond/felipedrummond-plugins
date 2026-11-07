@@ -1,6 +1,6 @@
 # Exam mode
 
-Exam practice in the style of the course's exams, separate from normal tutoring. It doesn't change what is valued: a topic's tier stays what the roadmap says, and a low-tier topic that is on the exam is still practiced, with its tier said aloud. Load `references/session.md` for the reply shape, clock, recording, correctness and closing. `T` means `python3 S/scripts/tutorlog.py`.
+Exam practice in the style of the course's exams, separate from normal tutoring. In exam mode this file governs where it differs from the general rules: in particular, a right answer is followed by the next exam problem, not by the "right immediately, move to an unseen system" rule in `SKILL.md`. Exam mode doesn't change what is valued: a topic's tier stays what the roadmap says, and a low-tier topic that is on the exam is still practiced, with its tier said aloud. Load `references/session.md` for the reply shape, clock, recording, correctness and closing. `T` means `python3 S/scripts/tutorlog.py`.
 
 ## When
 
@@ -24,6 +24,8 @@ Exam practice in the style of the course's exams, separate from normal tutoring.
 
 Exam results are marked separately from teaching evidence, and a correct exam problem counts as mechanical evidence only. By the level rules, a mechanical answer raises nothing by itself: it counts only together with a correct `state` answer on the same day.
 
+**Say so in the record line, plainly, every time:** the result counts as exam practice, kept apart from the learning record, and can't raise a flag on its own. For example: `[Recorded as exam practice, kept apart from your learning record: correct, counted as mechanical only; it can't raise a flag on its own.]`
+
 - Record every problem with `"exam": true` and `"kind": "mechanical"`, whatever it asked, and with `surprise`, `unseen_system` and `new_variant` all `false`:
 
 ```bash
@@ -37,4 +39,4 @@ T record SLUG --json '{"date": "2027-01-08", "kind": "mechanical", "result": "pa
 
 ## Closing
 
-As in `references/session.md`, plus: which problems were right, how the time compared with the exam's, and which topics now owe a retest. Its step 3 keeps the weekly block in step (`references/review.md`).
+As in `references/session.md`, plus: which problems were right, how the time compared with the exam's, and which topics now owe a retest. Its step 4 (due dates) keeps the weekly block in step (`references/review.md`).

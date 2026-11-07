@@ -256,10 +256,17 @@ def _due_on(topics: list[Topic], day: date) -> list[Topic]:
     return [t for t in topics if t.next_due is not None and t.next_due <= day]
 
 
+def _failed_before(topic: Topic, today: date) -> bool:
+    """The latest retest date failed and is before today."""
+    outcomes = _retest_outcomes(topic.evidence)
+    return bool(outcomes) and not outcomes[-1][1] and outcomes[-1][0] < today
+
+
 def session_opening(topics: list[Topic], today: date, limit: int = 2) -> list[Topic]:
-    """Due topics: failed last retest first, then tier, then longest overdue."""
-    due = _due_on(topics, today)
-    due.sort(key=lambda t: (not _failed_last_retest(t), TIERS.index(t.tier), t.next_due))
+    """Due topics, plus any whose latest retest failed on an earlier day even if not yet due:
+    failed last retest first, then tier, then longest overdue."""
+    due = [t for t in topics if (t.next_due is not None and t.next_due <= today) or _failed_before(t, today)]
+    due.sort(key=lambda t: (not _failed_last_retest(t), TIERS.index(t.tier), t.next_due or date.max))
     return due[:limit]
 
 

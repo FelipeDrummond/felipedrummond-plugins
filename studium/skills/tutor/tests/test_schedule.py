@@ -51,6 +51,28 @@ def test_session_opening_limit_and_order():
     assert len(session_opening(topics, today, limit=5)) == 5
 
 
+def test_failed_yesterday_is_listed_first_before_next_due():
+    today = date(2026, 12, 1)
+    failed = make_topic(slug="failed", tier="know_exists", next_due=date(2026, 12, 2),
+                        evidence=[_ev(date(2026, 11, 30), "wrong")])
+    due = make_topic(slug="due", tier="own_it", next_due=date(2026, 11, 20), evidence=[])
+    assert [t.slug for t in session_opening([due, failed], today)] == ["failed", "due"]
+    assert failed.next_due == date(2026, 12, 2)
+
+
+def test_failed_today_is_not_listed_again_today():
+    today = date(2026, 12, 1)
+    failed = make_topic(slug="failed", next_due=date(2026, 12, 3), evidence=[_ev(today, "wrong")])
+    assert session_opening([failed], today) == []
+
+
+def test_failed_then_passed_later_is_not_listed_early():
+    today = date(2026, 12, 1)
+    topic = make_topic(slug="t", next_due=date(2026, 12, 7),
+                       evidence=[_ev(date(2026, 11, 28), "wrong"), _ev(date(2026, 11, 30), "correct")])
+    assert session_opening([topic], today) == []
+
+
 def test_non_surprise_failure_does_not_count_as_failed():
     today = date(2026, 12, 1)
     a = make_topic(slug="a", tier="know_exists", next_due=date(2026, 11, 1),
