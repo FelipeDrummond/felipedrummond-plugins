@@ -345,9 +345,12 @@ def _read_state(directory: Path) -> dict | None:
     history = _typed(_get(raw, "overflow_history", file), list, "overflow_history", file)
     for i, item in enumerate(history):
         _typed(item, int, f"overflow_history[{i}]", file)
+    completed = _typed(_get(raw, "completed", file), bool, "completed", file)
+    block_date = _get(raw, "block_date", file)
     return {
-        "block_date": _date(_get(raw, "block_date", file), "block_date", file),
-        "completed": _typed(_get(raw, "completed", file), bool, "completed", file),
+        # null means no block yet: it matches no date, so block_action acts as with no state
+        "block_date": None if block_date is None else _date(block_date, "block_date", file),
+        "completed": completed,
         "overflow_history": history,
     }
 

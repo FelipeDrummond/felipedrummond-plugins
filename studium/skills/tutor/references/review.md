@@ -22,7 +22,7 @@ If a scheduled session turns out unable to find `HOME` or to wait for his replie
 }
 ```
 
-Missing, or `block_date` null: no block yet. `overflow_history` holds one number per finished block: how many due topics didn't fit it. Read the file before changing it and write every field back.
+Setup creates it with every id and `block_date` null: `block_date` null means no block yet, and `block-action` treats it like a missing file. `overflow_history` holds one number per finished block: how many due topics didn't fit it. Read the file before changing it and write every field back.
 
 ## After any session that changes due dates
 
@@ -51,8 +51,8 @@ You only ever touch the event and the task whose ids are stored. Never edit or d
 
 - Calendar: `tutor_calendar` from config. Class dates come from `class_calendar`, which is read-only.
 - Count: `N` is the number of topics `T due --for block --block-date D` prints (at most 6).
-- Check for clashes first: `list_events` on both calendars for the hour starting `review_time` on `D`. If anything else is there, use the nearest free hour that day between 9:00 and 20:00; if none is free, keep `review_time`. Either way, say in the closing message what it clashed with and when the block is; he can move it.
-- `create_event`: `summary` "Tutor weekly review: N topics", start at the chosen time with `timeZone` from config, length `session_minutes`, `description` "Weekly retest block from the tutor. A review session should open by itself. If it doesn't, start /tutor in HOME_ABS and say: weekly review." (with `HOME`'s absolute path).
+- Check for clashes first: `list_events` on both calendars for the hour starting `review_time` on `D`. A clash is not an error and doesn't stop scheduling: create the event and the task at `review_time` anyway, and tell him in the closing message the clashing event's time and title. He decides whether to move the block; if he does, use `update_event` and `update_scheduled_task` with the new time.
+- `create_event`: `summary` "Tutor weekly review: N topics", start at `review_time` with `timeZone` from config, length `session_minutes`, `description` "Weekly retest block from the tutor. A review session should open by itself. If it doesn't, start /tutor in HOME_ABS and say: weekly review." (with `HOME`'s absolute path).
 - **No topic names and no questions in the event or the task.** He knows a review is coming, not what it asks.
 
 ### Creating the task

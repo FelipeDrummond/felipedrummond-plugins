@@ -135,6 +135,26 @@ def test_block_action_completed_and_delete(tmp_path):
     assert run(empty, "block-action", "--block-date", "2026-11-20").stdout.strip() == "delete"
 
 
+def test_block_action_null_block_date_means_no_block(tmp_path):
+    seed(tmp_path, 1)
+    _state(tmp_path, block_date=None, event_id=None, task_id=None)
+    out = run(tmp_path, "block-action", "--block-date", "2026-11-20")
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.strip() == "create"
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    (empty / "review_state.json").write_text((tmp_path / "review_state.json").read_text())
+    out = run(empty, "block-action", "--block-date", "2026-11-20")
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.strip() == "none"
+
+
+def test_block_action_null_block_date_still_validates_other_fields(tmp_path):
+    _state(tmp_path, block_date=None, completed="no")
+    out = run(tmp_path, "block-action", "--block-date", "2026-11-20")
+    assert out.returncode == 2 and "completed" in out.stderr
+
+
 def test_block_action_bad_state_file(tmp_path):
     (tmp_path / "review_state.json").write_text('{"block_date": "nope"}')
     out = run(tmp_path, "block-action", "--block-date", "2026-11-20")

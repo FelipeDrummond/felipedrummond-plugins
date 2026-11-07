@@ -8,9 +8,10 @@ Create what is missing, and change nothing that exists:
 
 - `HOME/data/topics/` (empty folder).
 - `HOME/data/open.json`: `{"on_hold": [], "repairs": [], "skipped": []}`, indented by 2 (shape in `references/session.md`, Recording).
+- `HOME/data/review_state.json`: `{"block_date": null, "event_id": null, "task_id": null, "completed": false, "overflow_history": []}`, indented by 2 (`block_date` null means no block yet; `references/review.md`).
 - Sync the page assets: `rsync -a S/assets/ HOME/pages/assets/`.
 
-`HOME/data/config.json` holds the settings. Read it before asking anything; ask only for what is null or missing.
+`HOME/data/config.json` holds the settings. Read it before asking anything; ask only for what is null or missing. Write each value in the format below, exactly.
 
 | Key | Holds |
 |---|---|
@@ -79,4 +80,4 @@ Then, in chat: the end goal, the first few topics with tier and reason, the full
 
 ## 4. After setup
 
-`HOME/data/review_state.json` is not created here; `references/review.md` writes it with the first block. Run "After any session that changes due dates" in `references/review.md`: with nothing due, `block-action` prints `none` and nothing is created. Then go on in the mode he asks for, by the table in `SKILL.md`.
+Run "After any session that changes due dates" in `references/review.md`: with nothing due, `block-action` prints `none` and nothing is created. Then go on in the mode he asks for, by the table in `SKILL.md`.

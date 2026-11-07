@@ -22,7 +22,7 @@ Exam practice in the style of the course's exams, separate from normal tutoring.
 
 ## Recording
 
-Exam results are logged separately from teaching evidence, and a correct exam problem counts as mechanical evidence only, so exam practice can never raise a flag by itself.
+Exam results are marked separately from teaching evidence, and a correct exam problem counts as mechanical evidence only. By the level rules, a mechanical answer raises nothing by itself: it counts only together with a correct `state` answer on the same day.
 
 - Record every problem with `"exam": true` and `"kind": "mechanical"`, whatever it asked, and with `surprise`, `unseen_system` and `new_variant` all `false`:
 
@@ -31,9 +31,9 @@ T record SLUG --json '{"date": "2027-01-08", "kind": "mechanical", "result": "pa
 ```
 
 - One problem touching several topics: record it in each topic file it tests.
-- Exam mode doesn't run the flag update (Flags in `references/session.md`). The flag changes only through teaching and review evidence.
+- Flags follow `tutorlog.py level` as in any session (Flags in `references/session.md`).
 - **A wrong or partial exam answer** goes in the topic's `mistakes`, in his words where useful. Set `"retest_without_notice": true` on that topic, with `next_due` within a week, so it comes back by surprise in a normal session. A deep gap it reveals goes to `repairs` in `open.json`, as in any session.
 
 ## Closing
 
-As in `references/session.md`, without the flag update, plus: which problems were right, how the time compared with the exam's, and which topics now owe a retest. Its step 3 keeps the weekly block in step (`references/review.md`).
+As in `references/session.md`, plus: which problems were right, how the time compared with the exam's, and which topics now owe a retest. Its step 3 keeps the weekly block in step (`references/review.md`).
