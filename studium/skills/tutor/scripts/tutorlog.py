@@ -1,7 +1,7 @@
 """Evidence log for the tutor: topic records, validation, and understanding levels."""
 import json
 import os
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import date
 from pathlib import Path
 
@@ -52,6 +52,9 @@ class Topic:
 
 # ---------- loading and saving ----------
 
+_EVIDENCE_FIELDS = frozenset(f.name for f in fields(Evidence))
+_TOPIC_FIELDS = frozenset(f.name for f in fields(Topic))
+
 def _fail(file: Path, name: str, problem: str) -> LogError:
     return LogError(f"{file.name}: field '{name}' {problem}")
 
@@ -88,9 +91,16 @@ def _str_list(value, name: str, file: Path) -> list[str]:
     return value
 
 
+def _reject_unknown(data: dict, known, file: Path, prefix: str = "") -> None:
+    for key in data:
+        if key not in known:
+            raise _fail(file, prefix + str(key), "is not a known field")
+
+
 def _parse_evidence(raw, index: int, file: Path) -> Evidence:
     prefix = f"evidence[{index}]."
     _typed(raw, dict, prefix.rstrip("."), file)
+    _reject_unknown(raw, _EVIDENCE_FIELDS, file, prefix)
     confidence = raw.get("confidence")
     if confidence is not None:
         _typed(confidence, int, prefix + "confidence", file)
@@ -110,6 +120,7 @@ def _parse_evidence(raw, index: int, file: Path) -> Evidence:
 def _parse_topic(data, file: Path) -> Topic:
     if not isinstance(data, dict):
         raise LogError(f"{file.name}: top level must be a JSON object")
+    _reject_unknown(data, _TOPIC_FIELDS, file)
     next_due = _get(data, "next_due", file)
     return Topic(
         slug=_typed(_get(data, "slug", file), str, "slug", file),

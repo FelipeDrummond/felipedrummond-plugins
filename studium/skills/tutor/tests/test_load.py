@@ -95,3 +95,23 @@ def test_home_respects_env(monkeypatch, tmp_path):
 def test_home_default(monkeypatch):
     monkeypatch.delenv("TUTOR_HOME", raising=False)
     assert home().name == "tutor" and home().parent.name == "Documents"
+
+
+def test_unknown_topic_key_names_file_and_field(tmp_path):
+    save_topic(make_topic(), tmp_path)
+    path = tmp_path / "fourier-series.json"
+    data = json.loads(path.read_text())
+    data["pachted"] = True
+    path.write_text(json.dumps(data))
+    with pytest.raises(LogError, match=r"fourier-series\.json.*'pachted'.*not a known field"):
+        load_topics(tmp_path)
+
+
+def test_unknown_evidence_key_names_file_index_and_field(tmp_path):
+    save_topic(make_topic(), tmp_path)
+    path = tmp_path / "fourier-series.json"
+    data = json.loads(path.read_text())
+    data["evidence"][0]["hintd"] = True
+    path.write_text(json.dumps(data))
+    with pytest.raises(LogError, match=r"fourier-series\.json.*'evidence\[0\]\.hintd'.*not a known field"):
+        load_topics(tmp_path)
