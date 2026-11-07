@@ -12,7 +12,7 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 - A criterion is PASS only if the reply clearly satisfies it. Hedged, partial or implied compliance is FAIL.
 - Any FAIL fails the scenario. There is no partial credit.
 - Where a criterion refers to the tutor's record (a log, a flag, the notes page), the reply must say what is recorded or done. A reply that records nothing aloud and does not mention it fails that criterion.
-- "Question" means a request that the student answer or do something. A reply may contain statements and verdicts, but only one such request. A sentence that asks for two things counts as two requests.
+- "Question" means a request that the student answer or do something. A reply may contain statements and verdicts, but only one such request. A sentence that asks for two things counts as two requests. Exception: asking for a confidence rating (1 to 5) as part of the question counts as part of that one request.
 - The tutor has no tools in an eval run. If it would run a command or write a record, it says so in its reply (for example in brackets), and that text counts as part of the reply.
 
 ---

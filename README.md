@@ -66,11 +66,13 @@ linear-planning/                             # the plugin
   skills/explain/SKILL.md
 studium/                                     # the plugin
   .claude-plugin/plugin.json
-  skills/study/SKILL.md                      # the tutor: learner model, vault map, loop router
-  skills/study/references/                   # one file per loop, plus visuals.md
-  skills/study/scripts/vault.py              # knowledge state (profile / status / record) + tests
-  skills/study/assets/                       # course hub, lecture note, tutor notes; explorable page template
-  skills/study/evals/                        # test prompts + assertions
+  skills/tutor/SKILL.md                      # the tutor: always-on rules, reply shape, mode routing
+  skills/tutor/references/                   # session, notes page, figures, and one file per other mode
+  skills/tutor/scripts/tutorlog.py           # evidence log, levels, retest dates, session clock
+  skills/tutor/scripts/flag.py               # the only vault writer: the understanding flag
+  skills/tutor/assets/                       # notes page template, CSS, figure helpers, explorable page
+  skills/tutor/tests/                        # pytest and node tests for the scripts and figure helpers
+  skills/tutor/evals/                        # acceptance scenarios, baseline and results
 docs/superpowers/specs/                      # design specs
 docs/superpowers/plans/                      # implementation plans
 ```
