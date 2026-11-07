@@ -1,6 +1,6 @@
 # Tutor acceptance scenarios
 
-Eleven scripted situations, S1 to S11. Each is run twice: against a tutor with no skill (baseline) and against the finished skill. A runner needs only the shared tutor brief and one scenario's text. The tutor gives one reply, and the grader marks it against that scenario's criteria. S4 has two turns, each a separate run with its own reply, graded independently.
+Sixteen scripted situations: S1 to S11, and the mode checks M1 to M5 (M1 has two turns, like S4). Each is run twice: against a tutor with no skill (baseline) and against the finished skill. A runner needs only the shared tutor brief and one scenario's text. The tutor gives one reply, and the grader marks it against that scenario's criteria. S4 has two turns, each a separate run with its own reply, graded independently.
 
 ## Tutor brief (given to the tutor in every scenario)
 
@@ -178,3 +178,87 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 2. No request for the student to answer or do anything appears before the motivation. A rhetorical question inside the motivation is fine.
 3. The reply contains exactly one question for the student, and it does not list several sub-questions or numbered parts.
 4. The reply does not state or define the theorem before the first question.
+
+---
+
+## M1: Weekly review of an earlier topic (turn 1)
+
+**Context.** This is the scheduled weekly review block. The topic due is stability of linear systems from eigenvalues, which the student studied two weeks ago and passed then on the system x' = Ax with A = [[0, 1], [-4, -1]]. The log shows one past mistake: the student once called a system with eigenvalues -1 and +2 stable. The tutor has just greeted the student and said this is the review for that topic.
+
+**Student:** "Ready. Go ahead."
+
+**Pass criteria**
+1. The reply asks the student to explain the topic from memory, in their own words, as the request in this reply.
+2. The reply asks no other question or task, and gives no new problem, system or hint before that explanation.
+3. The reply does not re-teach or restate the topic's content before asking.
+4. The reply asks for exactly one thing.
+
+---
+
+## M1, turn 2: Weekly review, after the explanation
+
+**Context.** Same review as M1. The tutor asked the student to explain stability of linear systems from eigenvalues from memory. The student explained it as below.
+
+**Student:** "x' = Ax is asymptotically stable if all eigenvalues of A have negative real part. If any has positive real part it's unstable. I don't remember what happens with zero real part."
+
+**Pass criteria**
+1. The reply credits what was right and names the gap (zero real part), in a sentence or two.
+2. The next request uses a system the student has not seen in this review or in the log context (for example, a new matrix with a different structure, or a nonlinear system), not A = [[0, 1], [-4, -1]].
+3. The test targets a past weak spot: it involves mixed-sign eigenvalues or the zero real part case.
+4. The reply asks exactly one question.
+
+---
+
+## M2: Retest due today comes first
+
+**Context.** Start of an ordinary session. Today is 2026-12-10. The student wants to study LaSalle's invariance principle, which is new material. The log shows one retest due: "positive definite functions", due 2026-12-08 (two days overdue). Nothing else is overdue. The tutor has just greeted the student.
+
+**Student:** "Hi. Today I want to start LaSalle's invariance principle."
+
+**Pass criteria**
+1. The reply says a retest on positive definite functions is due, and brings it up before LaSalle.
+2. The reply does not begin teaching or motivating LaSalle in this message.
+3. The reply asks one question or task, and it is the retest (about positive definite functions).
+4. The reply does not ask whether the student wants to do the retest instead of being told it is first.
+
+---
+
+## M3: A failed review item comes first
+
+**Context.** Start of a session. Yesterday the student failed a review item: "the indirect method", on which they said a linearization with a zero real part eigenvalue proves stability. The log marks it failed, to be retested in 2 to 3 days. Today the student wants to continue with phase portraits of nonlinear systems. The tutor has just greeted the student.
+
+**Student:** "Morning. Let's continue with phase portraits."
+
+**Pass criteria**
+1. The reply says yesterday's failed item (the indirect method) comes first, before phase portraits.
+2. The reply does not begin on phase portraits in this message.
+3. The reply asks one question or task about the failed item, and does not give the answer to it.
+4. The reply states the failure plainly, without softening.
+
+---
+
+## M4: Exam practice does not raise a flag
+
+**Context.** Exam practice mode, in the style of the course's exams. The student has no other evidence on this topic today: no explanation, no unseen system and no earlier test. The student's note on the topic currently has no understanding flag. The tutor set the problem: "For x1' = -x1^3 + x2, x2' = -x1 - x2^3, use V(x) = x1^2 + x2^2 to decide the stability of the origin." The student has just submitted a fully correct solution.
+
+**Student:** "V is positive definite. V' = 2x1(-x1^3 + x2) + 2x2(-x1 - x2^3) = -2x1^4 - 2x2^4, since the cross terms cancel. V' is negative definite, so the origin is asymptotically stable. Confidence 5."
+
+**Pass criteria**
+1. The reply says the solution is right in the first sentence.
+2. The reply says this result counts as exam practice only, or mechanical evidence only, and does not establish understanding of the topic.
+3. The reply does not raise, set or announce an understanding flag (no "moderate", "good" or "deep" for the note), in text or in brackets.
+4. The reply says the result is logged as exam practice, separately from the learning record.
+
+---
+
+## M5: Nothing due, no weekly review event
+
+**Context.** The end of a session. The student has finished the topic of the day. The log shows nothing due for review in the coming week: every topic's next retest is more than a week away, and nothing failed. The student's calendar already has its usual study blocks. The tutor is closing the session and saving where things stand.
+
+**Student:** "That's the hour. Anything else before I go?"
+
+**Pass criteria**
+1. The reply closes the session, saying where things stand (what was covered, and what is next).
+2. The reply does not create, propose or announce a weekly review calendar event, in text or in brackets.
+3. The reply does not mention a review block as scheduled for the coming week.
+4. The reply may say nothing is due this week. If it does, it says it plainly.
