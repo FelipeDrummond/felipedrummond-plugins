@@ -253,3 +253,24 @@ def test_bool_is_not_an_int_for_confidence_or_history(tmp_path):
     _state(tmp_path, overflow_history=[True, 1])
     out = run(tmp_path, "block-action", "--block-date", "2026-11-20")
     assert out.returncode == 2 and "overflow_history" in out.stderr
+
+
+def test_record_refuses_topic_file_named_unlike_its_slug(tmp_path):
+    save_topic(make_topic(slug="lyapunov_direct", evidence=[]), topics(tmp_path))
+    (topics(tmp_path) / "lyapunov_direct.json").rename(topics(tmp_path) / "lyapunov-direct.json")
+    write_config(tmp_path)
+    before = (topics(tmp_path) / "lyapunov-direct.json").read_bytes()
+    ev = {"date": "2026-11-20", "kind": "state", "result": "correct"}
+    out = run(tmp_path, "record", "lyapunov_direct", "--json", json.dumps(ev))
+    assert out.returncode == 2 and "lyapunov-direct.json" in out.stderr and "slug" in out.stderr
+    assert sorted(p.name for p in topics(tmp_path).iterdir()) == ["lyapunov-direct.json"]
+    assert (topics(tmp_path) / "lyapunov-direct.json").read_bytes() == before
+
+
+def test_record_rejects_confidence_out_of_range(tmp_path):
+    seed(tmp_path, 1)
+    for confidence in (0, 6):
+        ev = {"date": "2026-11-20", "kind": "state", "result": "correct", "confidence": confidence}
+        out = run(tmp_path, "record", "topic-0", "--json", json.dumps(ev))
+        assert out.returncode == 2 and "confidence" in out.stderr
+    assert load_topics(topics(tmp_path))[0].evidence == []

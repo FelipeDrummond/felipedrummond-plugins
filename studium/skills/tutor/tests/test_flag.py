@@ -313,3 +313,40 @@ def test_cli_rejects_bad_level(tmp_path):
     r = run_cli(home, "set", "a.md", "great")
     assert r.returncode != 0
     assert (vault / "a.md").read_bytes() == FM
+
+
+# ---- independent check that only the flag line changed ----
+
+@pytest.mark.parametrize("original, level", [
+    (FM, "good"), (new_bytes(FM, "good"), "deep"), (new_bytes(FM, "good"), None),
+    (b"# Note\r\ntext\r\n", "moderate"), (new_bytes(b"# Note\ntext\n", "deep"), None),
+    (b"---\ntype: x\n---", "good"),
+])
+def test_only_flag_changed_accepts_what_new_bytes_does(original, level):
+    assert flag._only_flag_changed(original, new_bytes(original, level))
+
+
+def test_only_flag_changed_rejects_any_other_change():
+    with_flag = new_bytes(FM, "good")
+    assert not flag._only_flag_changed(FM, with_flag.replace(b"Title", b"TITLE"))
+    assert not flag._only_flag_changed(FM, FM.replace(b"---\n\n", b"---\nextra: 1\n\n"))
+    assert not flag._only_flag_changed(FM, FM.replace(b"type: concept", b"understanding: good"))
+    assert not flag._only_flag_changed(FM, b"---\nunderstanding: good\n---\n" + FM)
+    assert not flag._only_flag_changed(b"# Note\n", b"---\nunderstanding: good\n---\n# NOTE\n")
+
+
+@pytest.mark.parametrize("name, level", [("a.md", "good"), ("sub/b.md", "deep")])
+def test_set_flag_catches_new_bytes_bug_that_also_changes_another_line(tmp_path, monkeypatch, name, level):
+    vault, backups = make_vault(tmp_path)
+    note = vault / name
+    before = note.read_bytes()
+    real_new_bytes = flag.new_bytes
+
+    def buggy(original, lvl):  # also corrupts a body line, consistently, so the round trip still agrees
+        return real_new_bytes(original, lvl).replace(b"Title", b"TITLE").replace(b"no fm", b"NO FM")
+
+    monkeypatch.setattr(flag, "new_bytes", buggy)
+    with pytest.raises(FlagError, match="more than the understanding line"):
+        set_flag(note, level, vault, backups)
+    assert note.read_bytes() == before
+    assert not backups.exists()

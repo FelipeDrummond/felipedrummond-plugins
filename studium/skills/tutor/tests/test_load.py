@@ -115,3 +115,48 @@ def test_unknown_evidence_key_names_file_index_and_field(tmp_path):
     path.write_text(json.dumps(data))
     with pytest.raises(LogError, match=r"fourier-series\.json.*'evidence\[0\]\.hintd'.*not a known field"):
         load_topics(tmp_path)
+
+
+def test_file_name_not_matching_slug_names_file_and_field(tmp_path):
+    save_topic(make_topic(slug="lyapunov_direct"), tmp_path)
+    (tmp_path / "lyapunov_direct.json").rename(tmp_path / "lyapunov-direct.json")
+    with pytest.raises(LogError, match=r"lyapunov-direct\.json: field 'slug'"):
+        load_topics(tmp_path)
+
+
+@pytest.mark.parametrize("slug", ["Fourier", "fourier series", "-lead", "a.b", ""])
+def test_slug_with_bad_characters_is_rejected_on_load(tmp_path, slug):
+    save_topic(make_topic(), tmp_path)
+    path = tmp_path / "fourier-series.json"
+    data = json.loads(path.read_text())
+    data["slug"] = slug
+    path.write_text(json.dumps(data))
+    with pytest.raises(LogError, match=r"fourier-series\.json: field 'slug'"):
+        load_topics(tmp_path)
+
+
+@pytest.mark.parametrize("slug", ["../escape", "sub/topic", "Bad", ""])
+def test_save_refuses_bad_slug_and_writes_nothing(tmp_path, slug):
+    target = tmp_path / "topics"
+    with pytest.raises(LogError, match="slug"):
+        save_topic(make_topic(slug=slug), target)
+    assert not any(tmp_path.rglob("*.json"))
+
+
+@pytest.mark.parametrize("confidence", [0, 6, -1])
+def test_confidence_outside_one_to_five_names_the_field(tmp_path, confidence):
+    save_topic(make_topic(), tmp_path)
+    path = tmp_path / "fourier-series.json"
+    data = json.loads(path.read_text())
+    data["evidence"][0]["confidence"] = confidence
+    path.write_text(json.dumps(data))
+    with pytest.raises(LogError, match=r"evidence\[0\]\.confidence"):
+        load_topics(tmp_path)
+
+
+def test_confidence_null_and_bounds_are_allowed(tmp_path):
+    ev = make_topic().evidence[0]
+    for confidence in (None, 1, 5):
+        topic = make_topic(evidence=[Evidence(**{**ev.__dict__, "confidence": confidence})])
+        save_topic(topic, tmp_path)
+        assert load_topics(tmp_path) == [topic]

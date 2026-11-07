@@ -64,3 +64,14 @@ def test_note_shows_weakest_topic():
 def test_confidence_summary_is_short():
     text = confidence_summary([ev(1, "mechanical", confidence=5), ev(1, "flaw", "wrong", confidence=5), ev(1, "state", confidence=None)])
     assert "5: 1 of 2 correct" in text and "not given: 1 of 1 correct" in text
+
+
+def test_confidence_summary_keeps_not_asked_apart_from_not_given():
+    text = confidence_summary([
+        ev(1, "mechanical", confidence=4),
+        ev(1, "state", confidence=None),
+        ev(1, "state", "wrong", confidence=None),
+        ev(1, "mechanical", confidence=None, note="not asked: routine step"),
+        ev(1, "mechanical", "wrong", confidence=None, note="not asked"),
+    ])
+    assert text == "4: 1 of 1 correct; not given: 1 of 2 correct; not asked: 1 of 2 correct"

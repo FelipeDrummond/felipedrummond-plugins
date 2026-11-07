@@ -80,6 +80,23 @@ def new_bytes(original: bytes, level: str | None) -> bytes:
     return b"".join(lines)
 
 
+def _only_flag_changed(original: bytes, result: bytes) -> bool:
+    """True if the two differ by exactly one understanding line (added, removed or replaced),
+    or by the fence/flag/fence block added to or removed from the top of a note without frontmatter."""
+    a, b = original.splitlines(keepends=True), result.splitlines(keepends=True)
+    if len(a) == len(b):
+        diff = [i for i in range(len(a)) if a[i] != b[i]]
+        return len(diff) == 1 and bool(_FLAG_LINE.match(a[diff[0]])) and bool(_FLAG_LINE.match(b[diff[0]]))
+    longer, shorter = (a, b) if len(a) > len(b) else (b, a)
+    if len(longer) - len(shorter) == 1:
+        i = next((i for i in range(len(shorter)) if longer[i] != shorter[i]), len(shorter))
+        return bool(_FLAG_LINE.match(longer[i])) and longer[i + 1:] == shorter[i:]
+    if len(longer) - len(shorter) == 3:
+        return (_is_fence(longer[0]) and bool(_FLAG_LINE.match(longer[1])) and _is_fence(longer[2])
+                and longer[3:] == shorter and not (shorter and _is_fence(shorter[0])))
+    return False
+
+
 def _read(path: Path) -> bytes:
     return path.read_bytes()
 
@@ -135,6 +152,8 @@ def set_flag(note: Path, level: str | None, vault: Path, backup_dir: Path) -> st
     expected_without_flag = new_bytes(original, None)
     if new_bytes(result, None) != expected_without_flag:
         raise FlagError(f"{note}: removing the flag from the new content would not give back the original; nothing was changed")
+    if not _only_flag_changed(original, result):
+        raise FlagError(f"{note}: the new content changes more than the understanding line; nothing was changed")
 
     backup = _backup(original, rel, backup_dir)
     if _read(real) != original:

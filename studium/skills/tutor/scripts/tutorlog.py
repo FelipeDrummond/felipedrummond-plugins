@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 from dataclasses import asdict, dataclass, field, fields
 from datetime import date, datetime, timedelta
@@ -11,6 +12,7 @@ KINDS = ("state", "mechanical", "conceptual", "flaw", "invent")
 RESULTS = ("correct", "partial", "wrong", "not_answered")
 TIERS = ("own_it", "by_hand_then_delegate", "know_exists")
 LEVELS = ("moderate", "good", "deep")
+_SLUG = re.compile(r"[a-z0-9][a-z0-9_-]*")
 
 
 class LogError(Exception):
@@ -106,6 +108,8 @@ def _parse_evidence(raw, index: int, file: Path) -> Evidence:
     confidence = raw.get("confidence")
     if confidence is not None:
         _typed(confidence, int, prefix + "confidence", file)
+        if not 1 <= confidence <= 5:
+            raise _fail(file, prefix + "confidence", f"must be 1 to 5 or null, got {confidence!r}")
     flags = {}
     for flag in ("hinted", "surprise", "unseen_system", "new_variant", "exam"):
         flags[flag] = _typed(raw.get(flag, False), bool, prefix + flag, file)
@@ -124,8 +128,13 @@ def _parse_topic(data, file: Path) -> Topic:
         raise LogError(f"{file.name}: top level must be a JSON object")
     _reject_unknown(data, _TOPIC_FIELDS, file)
     next_due = _get(data, "next_due", file)
+    slug = _typed(_get(data, "slug", file), str, "slug", file)
+    if not _SLUG.fullmatch(slug):
+        raise _fail(file, "slug", f"must be lowercase letters, digits, '-' or '_', got {slug!r}")
+    if file.stem != slug:
+        raise _fail(file, "slug", f"must match the file name '{file.stem}', got {slug!r}")
     return Topic(
-        slug=_typed(_get(data, "slug", file), str, "slug", file),
+        slug=slug,
         name=_typed(_get(data, "name", file), str, "name", file),
         course=_typed(_get(data, "course", file), str, "course", file),
         section=_typed(_get(data, "section", file), str, "section", file),
@@ -157,6 +166,8 @@ def load_topics(directory: Path) -> list[Topic]:
 
 
 def save_topic(topic: Topic, directory: Path) -> None:
+    if not isinstance(topic.slug, str) or not _SLUG.fullmatch(topic.slug):
+        raise LogError(f"field 'slug' must be lowercase letters, digits, '-' or '_', got {topic.slug!r}; nothing was written")
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     text = json.dumps(asdict(topic), indent=2, ensure_ascii=False, default=lambda d: d.isoformat())
@@ -209,15 +220,19 @@ def note_level(levels: list[str | None]) -> str | None:
 
 
 def confidence_summary(evidence: list[Evidence]) -> str:
-    """How often each confidence rating was right, e.g. '5: 1 of 2 correct; not given: 1 of 1 correct'."""
-    buckets: dict[int | None, list[bool]] = {}
+    """How often each confidence rating was right, e.g.
+    '5: 1 of 2 correct; not given: 1 of 1 correct; not asked: 2 of 3 correct'.
+    An item whose note starts with "not asked" counts as not asked, whatever its confidence;
+    any other item without a rating counts as not given."""
+    buckets: dict[int | str, list[bool]] = {}
     for item in evidence:
-        buckets.setdefault(item.confidence, []).append(item.result == "correct")
-    order = sorted(buckets, key=lambda c: (c is None, c or 0))
-    return "; ".join(
-        f"{'not given' if c is None else c}: {sum(buckets[c])} of {len(buckets[c])} correct"
-        for c in order
-    )
+        if item.note.startswith("not asked"):
+            key = "not asked"
+        else:
+            key = "not given" if item.confidence is None else item.confidence
+        buckets.setdefault(key, []).append(item.result == "correct")
+    order = sorted(buckets, key=lambda c: (isinstance(c, str), c != "not given", c if isinstance(c, int) else 0))
+    return "; ".join(f"{c}: {sum(buckets[c])} of {len(buckets[c])} correct" for c in order)
 
 
 # ---------- retest scheduling and limits ----------
