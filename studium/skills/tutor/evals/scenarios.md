@@ -1,6 +1,6 @@
 # Tutor acceptance scenarios
 
-Eleven scripted situations, S1 to S11. Each is run twice: against a tutor with no skill (baseline) and against the finished skill. A runner needs only the shared tutor brief and one scenario's text. The tutor gives one reply, and the grader marks it against that scenario's criteria.
+Eleven scripted situations, S1 to S11. Each is run twice: against a tutor with no skill (baseline) and against the finished skill. A runner needs only the shared tutor brief and one scenario's text. The tutor gives one reply, and the grader marks it against that scenario's criteria. S4 has two turns, each a separate run with its own reply, graded independently.
 
 ## Tutor brief (given to the tutor in every scenario)
 
@@ -12,7 +12,8 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 - A criterion is PASS only if the reply clearly satisfies it. Hedged, partial or implied compliance is FAIL.
 - Any FAIL fails the scenario. There is no partial credit.
 - Where a criterion refers to the tutor's record (a log, a flag, the notes page), the reply must say what is recorded or done. A reply that records nothing aloud and does not mention it fails that criterion.
-- "Question" means a request that the student answer or do something. A reply may contain statements and verdicts, but only one such request.
+- "Question" means a request that the student answer or do something. A reply may contain statements and verdicts, but only one such request. A sentence that asks for two things counts as two requests.
+- The tutor has no tools in an eval run. If it would run a command or write a record, it says so in its reply (for example in brackets), and that text counts as part of the reply.
 
 ---
 
@@ -57,21 +58,25 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 
 ---
 
-## S4: Asks to skip a topic he has not earned
+## S4: Asks to skip a topic the student has not earned
 
 **Context.** Topic: Lyapunov's direct method. The student has not yet passed any test on this topic. In an earlier answer today the student could not say what it means for a function to be positive definite. The next planned topic is LaSalle's invariance principle, which relies on Lyapunov functions. The tutor has just asked a question about positive definiteness.
 
 **Student:** "This is boring. Skip Lyapunov, I'll just read it myself. Let's do LaSalle."
 
-Pass criteria for the first message (the reply to the above):
+**Pass criteria (turn 1)**
 1. The reply resists skipping, and gives a reason tied to evidence or to the dependency (LaSalle uses Lyapunov functions; the student could not state positive definiteness).
 2. The reply does not agree to skip in this message.
 
-**Follow-up student message (a second run, with the tutor's resisting reply added to the context):** "I hear you, but I'm skipping it. My call."
+**Turn 2 context.** Same as above, plus this fixed tutor reply to the first message, identical in every run:
 
-Pass criteria for the follow-up:
-3. The reply respects that the decision is the student's.
-4. The reply says it records the topic as skipped by the student, with no credit given and no understanding claimed.
+> Tutor: "I'd rather not skip it yet. LaSalle's principle is built on Lyapunov functions, and you couldn't say earlier what positive definite means, so LaSalle would rest on something shaky. Give me one question on it and we'll see how quick it is: is V(x) = x1^2 - x2^2 positive definite?"
+
+**Student:** "I hear you, but I'm skipping it. My call."
+
+**Pass criteria (turn 2, graded independently of turn 1)**
+1. The reply agrees to skip and does not argue further or ask for more evidence before accepting.
+2. The reply says it records the topic as skipped by the student, with no credit given and no understanding claimed.
 
 ---
 
@@ -82,7 +87,7 @@ Pass criteria for the follow-up:
 **Student:** "Right, but V keeps decreasing, so x has to go to zero in the end."
 
 **Pass criteria**
-1. The reply does not restate the earlier explanation in other words.
+1. The reply contains no more than one sentence restating the earlier explanation.
 2. The reply gives the student a concrete case to compute or check, designed to break the claim (for example, a V that is bounded below by a positive constant along a trajectory, or a V that is not positive definite).
 3. The reply asks the student to work on the case, and asks for nothing else.
 
@@ -98,20 +103,20 @@ Pass criteria for the follow-up:
 1. The reply treats "I don't remember" as a useful answer, and says so.
 2. The reply gives a short patch now, and ties it to why eigenvalues matter for the topic at hand.
 3. The reply says the student will be tested on the patch (a short test follows).
-4. The reply says the gap is recorded as "patched, not mastered" (or equivalent wording), not as understood.
-5. The reply says a separate repair block on linear algebra and linear systems will be planned (for example, later that week).
+4. The reply says the gap is recorded as "patched" plus "not mastered" or "not yet understood", not as understood.
+5. The reply says a separate repair session on linear algebra and linear systems will be planned. It need not name a day.
 
 ---
 
 ## S7: Right immediately
 
-**Context.** Topic: stability of linear systems from eigenvalues. The tutor asked, with a confidence rating: "x' = Ax with A having eigenvalues -1 and +2: is the origin stable?" The student answered correctly, with a correct reason and confidence 4. The tutor then asked about a second system, x' = Bx with B = [[0, 1], [-4, -1]]. The student computes the eigenvalues correctly (complex pair, real part -1/2), concludes stable, and gives correct reasoning.
+**Context.** Topic: stability of linear systems from eigenvalues. The tutor asked, with a confidence rating, about the first and only system so far: x' = Bx with B = [[0, 1], [-4, -1]]. The student has not seen any other system this session.
 
 **Student:** "Eigenvalues are -1/2 ± i sqrt(15)/2. Both have negative real part, so asymptotically stable. Confidence 5."
 
 **Pass criteria**
 1. The reply says the answer is right in the first sentence.
-2. The reply moves on to a system the student has not seen (for example a nonlinear system near an equilibrium, a zero real part case, or a different structure), rather than repeating this kind.
+2. The next request uses a system the student hasn't seen in this session, with different structure (for example a nonlinear system, or one where the eigenvalue test is inconclusive).
 3. The reply does not declare the topic mastered, and does not claim a deep or lasting understanding on two correct answers. If it mentions what is recorded, it does not go beyond the evidence (two correct answers in one sitting, nothing from a later day).
 4. The reply asks exactly one question.
 
@@ -124,7 +129,7 @@ Pass criteria for the follow-up:
 **Student:** "Can you just give me a summary of Lyapunov's method that I can read and learn from?"
 
 **Pass criteria**
-1. The reply gives a summary (or says it will), but not as the whole of the reply. It is brief.
+1. The reply gives a summary of no more than about 150 words, and the summary is not the whole of the reply.
 2. The summary comes together with a test of it: a question or task that makes the student use the summary or recall it, in this reply.
 3. The reply does not suggest that reading the summary will be enough to know the topic.
 4. The reply asks exactly one question or task of the student.
@@ -152,8 +157,8 @@ Pass criteria for the follow-up:
 
 **Pass criteria**
 1. The reply says it records the confidence as "not given" (or equivalent).
-2. The reply answers the content of the student's message (a verdict, right or wrong, stated first).
-3. The reply raises the missing ratings at most once, in a single sentence, without demanding that the student rate before continuing.
+2. The reply answers the content of the student's message (a verdict, right or wrong, stated in the first sentence).
+3. The reply raises the missing ratings at most once, in a single sentence, without demanding that the student rate before continuing. Folding the rating request into the one question counts as the one allowed raise.
 4. The reply asks exactly one question.
 
 ---
@@ -166,6 +171,6 @@ Pass criteria for the follow-up:
 
 **Pass criteria**
 1. The reply states the motivation before the first question: a concrete problem and why it matters for a robot.
-2. The motivation comes first in the reply, before any question mark or request.
+2. No request for the student to answer or do anything appears before the motivation. A rhetorical question inside the motivation is fine.
 3. The reply contains exactly one question for the student, and it does not list several sub-questions or numbered parts.
-4. The reply does not start explaining the method before asking what the student already knows.
+4. The reply does not state or define the theorem before the first question.
