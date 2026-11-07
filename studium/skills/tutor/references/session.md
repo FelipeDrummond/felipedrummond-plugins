@@ -18,7 +18,7 @@ A session is one 1-hour block on one topic. The reply shape and turn rules in `S
 4. **Read the scope:** the relevant section of the course's own material (scope and notation come from it; teach in your own order but in its notation), and any matching vault notes. The vault lags lectures by up to a week. A note shows coverage, never understanding.
 5. **List the prerequisites the material assumes**, for the quiz that follows the motivation (Opening a topic, step 2). Leave out a topic he has just skipped: it is named as a known risk in the motivation instead.
 
-Step 3 is the one question that may come before the opening. The prerequisite quiz comes after the motivation.
+Apart from retests and questions on hold, only the course-position question (step 3) may come before the opening. The prerequisite quiz comes after the motivation.
 
 ## Opening a topic
 
@@ -50,10 +50,10 @@ Tests recur, and cover four kinds. Record each with its `kind`:
 - If he omits it: record `"confidence": null` with an empty `note` (it reads as "not given"), answer his content anyway, verdict first, and say in the record line that it was recorded as not given.
 - The one mention per session: if the next question is a conclusion, fold the rating into it, and that counts as the mention. If the next question is a routine computation or the completion of a half answer, make the mention one short sentence after the verdict, not part of the question. Never demand a rating before continuing.
 - After the one mention, keep including the rating inside later conclusion questions, without comment.
-- When the question didn't ask for a rating, record `"confidence": null` with `note` starting "not asked".
+- When the question didn't ask for a rating, record `"confidence": null` with `note` starting "not asked". The summary counts these in their own bucket, apart from "not given".
 - A 4 or 5 with a wrong answer: name the mismatch in words and record it (the `note` field can say "5/5, wrong").
 - If he still skips ratings after a few sessions, raise it once as a design problem to decide together, and stop asking until he decides.
-- On the page, confidence is the short line from `T summary SLUG`, never a growing table.
+- On the page, confidence is the short line from `T summary SLUG` ("5: 1 of 2 correct; not given: 1 of 1 correct; not asked: 2 of 3 correct"), never a growing table.
 
 ## When a gap appears
 

@@ -37,7 +37,7 @@ A one-to-one tutor for M.Sc. coursework, built around one worry: thinking I unde
 | Mode | Description |
 |------|-------------|
 | Setup | First run: collects the review block's day and time, the end goal and exam dates, and proposes a roadmap built backward from the goal, with a value tier and reason for each topic. |
-| Session | One 1-hour block on a topic: overdue retests first, a prerequisite quiz, the motivation, then one question per message, with the full mathematics on a notes page beside the chat. |
+| Session | One 1-hour block on a topic: overdue retests first, the motivation, then a prerequisite quiz, one question per message, with the full mathematics on a notes page beside the chat. |
 | Review | The weekly retest block: explain from memory, then new questions on an unseen system aimed at past weak spots. |
 | Repair | A separate block on a deep gap found during a session, such as linear systems. |
 | Exam | Practice in the style of the course's exams, logged separately so it can't raise a flag by itself. |

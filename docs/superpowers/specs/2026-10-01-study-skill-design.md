@@ -2,6 +2,7 @@
 
 **Date:** 2026-10-01
 **Status:** v0.1 implemented, three evaluation rounds
+**Superseded:** by `/tutor` in November 2026; the `/study` skill was removed.
 **Plugin:** `studium` (new, one skill)
 
 ## Problem

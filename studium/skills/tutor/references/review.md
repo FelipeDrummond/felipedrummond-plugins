@@ -28,7 +28,7 @@ Setup creates it with every id and `block_date` null: `block_date` null means no
 
 Run this at the close of every session, repair, exam practice and review (the step in `references/session.md`, Closing). It keeps exactly one event and one task for the next block, or none.
 
-1. **The block date `D`** is the first `review_weekday`, today included, whose `review_time` is still ahead of now. On the review day after `review_time`, that is next week.
+1. **The block date `D`** is the first `review_weekday`, today included, whose `review_time` is still ahead of now. On the review day after `review_time`, that is next week, unless the stored block is today's and not completed: then `D` stays today until that review closes, so today's pending block is never stale.
 2. `T block-action --block-date D`. It prints `create`, `update`, `delete` or `none`, and a warning line when the last two blocks both overflowed.
 3. **A stale block first.** The stored block is stale if it is not completed and its `block_date` is earlier than `D` or not on `review_weekday` (a block that never ran, or one from before the review day changed). Delete its stored event and task first, whatever the action, and null each id as its delete succeeds. Its topics are still due, so they are in the new block.
 4. Act on the answer:
@@ -63,14 +63,14 @@ You only ever touch the event and the task whose ids are stored. Never edit or d
 ```text
 Use the tutor skill (/studium:tutor, or /tutor) in review mode for the weekly review block dated BLOCK_DATE.
 
-The tutor's home folder is HOME_ABS. Run every script command with TUTOR_HOME=HOME_ABS set (tutorlog.py and flag.py alike), for example: TUTOR_HOME=HOME_ABS python3 SKILL_DIR/scripts/tutorlog.py due --for block
+The tutor's home folder is HOME_ABS. S means the tutor skill's own folder (the base directory shown when the skill loads). Run every script command with TUTOR_HOME=HOME_ABS set (tutorlog.py and flag.py alike), for example: TUTOR_HOME=HOME_ABS python3 S/scripts/tutorlog.py due --for block
 
 First read HOME_ABS/data/review_state.json. If it is missing, if its block_date is not BLOCK_DATE, or if completed is true, reply with one line saying this review has nothing to do, and stop.
 
-Otherwise read SKILL_DIR/SKILL.md and SKILL_DIR/references/review.md, where S means SKILL_DIR, and run the review block as review.md says, waiting for the student's replies.
+Otherwise invoke the tutor skill by name, read S/references/review.md, and run the review block as review.md says, waiting for the student's replies. Only if the skill can't be invoked by name, fall back to the copy at SKILL_DIR: read SKILL_DIR/SKILL.md and SKILL_DIR/references/review.md, with S meaning SKILL_DIR. If that folder is missing too, say so in one line and stop.
 ```
 
-`HOME_ABS` is `HOME` as an absolute path, read from where you resolved it now. `SKILL_DIR` is `S` as an absolute path now: the installed plugin's copy, or the repo checkout while the plugin isn't installed.
+`HOME_ABS` is `HOME` as an absolute path, read from where you resolved it now. `SKILL_DIR` is `S` as an absolute path now: the installed plugin's copy, or the repo checkout while the plugin isn't installed. It is only the fallback, because a plugin update can move the installed copy; invoking the skill by name finds the current one.
 
 ## Running the review block
 
