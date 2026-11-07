@@ -1,14 +1,18 @@
 """Evidence log for the tutor: topic records, validation, and understanding levels."""
+import argparse
 import json
 import os
+import sys
 from dataclasses import asdict, dataclass, field, fields
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 KINDS = ("state", "mechanical", "conceptual", "flaw", "invent")
 RESULTS = ("correct", "partial", "wrong", "not_answered")
 TIERS = ("own_it", "by_hand_then_delegate", "know_exists")
 LEVELS = ("moderate", "good", "deep")
+# Other JSON files that live beside the topic files in the data directory.
+NON_TOPIC_FILES = frozenset({"config.json", "review_state.json"})
 
 
 class LogError(Exception):
@@ -143,9 +147,11 @@ def _parse_topic(data, file: Path) -> Topic:
 
 
 def load_topics(directory: Path) -> list[Topic]:
-    """Load every *.json topic in directory. Raises LogError on the first bad file."""
+    """Load every topic *.json in directory. Raises LogError on the first bad file."""
     topics = []
     for file in sorted(Path(directory).glob("*.json")):
+        if file.name in NON_TOPIC_FILES:
+            continue
         try:
             data = json.loads(file.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
@@ -216,3 +222,212 @@ def confidence_summary(evidence: list[Evidence]) -> str:
         f"{'not given' if c is None else c}: {sum(buckets[c])} of {len(buckets[c])} correct"
         for c in order
     )
+
+
+# ---------- retest scheduling and limits ----------
+
+_INTERVAL_DAYS = {0: 7, 1: 21}
+_FAILURE_DAYS = 2
+_STEADY_DAYS = 60
+_FINAL_WINDOW_DAYS = 14
+
+
+def next_due(today: date, consecutive_passes: int, passed: bool, tier: str, target: date) -> date:
+    """Next retest date. consecutive_passes counts the passes before this result."""
+    days = _FAILURE_DAYS if not passed else _INTERVAL_DAYS.get(consecutive_passes, _STEADY_DAYS)
+    due = today + timedelta(days=days)
+    final_window = target - timedelta(days=_FINAL_WINDOW_DAYS)
+    if tier == "own_it" and today < final_window and due > target:
+        return final_window
+    return due
+
+
+def _failed_last_retest(topic: Topic) -> bool:
+    surprises = [item for item in topic.evidence if item.surprise]
+    return bool(surprises) and max(surprises, key=lambda item: item.date).result != "correct"
+
+
+def _due_on(topics: list[Topic], day: date) -> list[Topic]:
+    return [t for t in topics if t.next_due is not None and t.next_due <= day]
+
+
+def session_opening(topics: list[Topic], today: date, limit: int = 2) -> list[Topic]:
+    """Due topics: failed last retest first, then tier, then longest overdue."""
+    due = _due_on(topics, today)
+    due.sort(key=lambda t: (not _failed_last_retest(t), TIERS.index(t.tier), t.next_due))
+    return due[:limit]
+
+
+def plan_block(topics: list[Topic], block_date: date, capacity: int = 6) -> tuple[list[Topic], int]:
+    """Topics for the review block by tier then longest overdue, and how many didn't fit."""
+    due = _due_on(topics, block_date)
+    due.sort(key=lambda t: (TIERS.index(t.tier), t.next_due))
+    return due[:capacity], max(0, len(due) - capacity)
+
+
+def block_action(state: dict | None, due_count: int, block_date: date) -> str:
+    """What to do with the calendar event for block_date: create, update, delete or none."""
+    if state is not None and state["block_date"] == block_date:
+        if state["completed"]:
+            return "none"
+        return "update" if due_count > 0 else "delete"
+    return "create" if due_count > 0 else "none"
+
+
+def overflowing(history: list[int]) -> bool:
+    """True when the last two weeks both had topics that didn't fit the block."""
+    return len(history) >= 2 and history[-1] > 0 and history[-2] > 0
+
+
+def minutes_left(start: datetime, now: datetime, length: int = 60) -> int:
+    return max(0, length - int((now - start).total_seconds() // 60))
+
+
+# ---------- command line ----------
+
+TARGET = date(2027, 2, 1)
+_STATE_FILE = "review_state.json"
+_CLOCK_FILE = ".session_start"
+
+
+def _find(topics: list[Topic], slug: str) -> Topic:
+    for topic in topics:
+        if topic.slug == slug:
+            return topic
+    raise LogError(f"no topic with slug '{slug}'")
+
+
+def _consecutive_passes(evidence: list[Evidence]) -> int:
+    count = 0
+    for item in sorted((e for e in evidence if e.surprise), key=lambda e: e.date, reverse=True):
+        if item.result != "correct":
+            break
+        count += 1
+    return count
+
+
+def _print_topics(topics: list[Topic]) -> None:
+    for topic in topics:
+        due = topic.next_due.isoformat() if topic.next_due else "none"
+        print(f"{topic.name} ({topic.slug}) tier={topic.tier} due={due}")
+
+
+def _read_state(directory: Path) -> dict | None:
+    file = directory / _STATE_FILE
+    if not file.exists():
+        return None
+    try:
+        raw = json.loads(file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise LogError(f"{file.name}: not valid JSON ({exc})") from exc
+    _typed(raw, dict, "(top level)", file)
+    history = _typed(_get(raw, "overflow_history", file), list, "overflow_history", file)
+    for i, item in enumerate(history):
+        _typed(item, int, f"overflow_history[{i}]", file)
+    return {
+        "block_date": _date(_get(raw, "block_date", file), "block_date", file),
+        "completed": _typed(_get(raw, "completed", file), bool, "completed", file),
+        "overflow_history": history,
+    }
+
+
+def _cmd_due(args, directory: Path) -> None:
+    topics = load_topics(directory)
+    today = args.today or date.today()
+    if args.target == "session":
+        _print_topics(session_opening(topics, today))
+        return
+    chosen, overflow = plan_block(topics, args.block_date or today)
+    _print_topics(chosen)
+    print(f"overflow: {overflow}")
+
+
+def _cmd_record(args, directory: Path) -> None:
+    topic = _find(load_topics(directory), args.slug)
+    try:
+        raw = json.loads(args.json)
+    except json.JSONDecodeError as exc:
+        raise LogError(f"--json: not valid JSON ({exc})") from exc
+    item = _parse_evidence(raw, len(topic.evidence), Path("--json"))
+    prior_passes = _consecutive_passes(topic.evidence)
+    topic.evidence.append(item)
+    passed = item.result == "correct"
+    if item.surprise:
+        topic.next_due = next_due(item.date, prior_passes, passed, topic.tier, TARGET)
+    elif topic.next_due is None:
+        topic.next_due = next_due(item.date, 0, True, topic.tier, TARGET)
+    save_topic(topic, directory)
+    print(f"recorded; next due {topic.next_due}")
+
+
+def _cmd_block_action(args, directory: Path) -> None:
+    state = _read_state(directory)
+    chosen, overflow = plan_block(load_topics(directory), args.block_date)
+    print(block_action(state, len(chosen) + overflow, args.block_date))
+    if state is not None and overflowing(state["overflow_history"]):
+        print("warning: overflow two weeks running, more topics are due than the block holds")
+
+
+def _cmd_clock(args, directory: Path) -> None:
+    file = directory / _CLOCK_FILE
+    if args.action == "start":
+        directory.mkdir(parents=True, exist_ok=True)
+        file.write_text(datetime.now().isoformat(), encoding="utf-8")
+        print("session clock started")
+        return
+    if not file.exists():
+        raise LogError(f"{file.name}: session clock was never started")
+    try:
+        start = datetime.fromisoformat(file.read_text(encoding="utf-8").strip())
+    except ValueError as exc:
+        raise LogError(f"{file.name}: not a valid timestamp ({exc})") from exc
+    print(f"{minutes_left(start, datetime.now())} minutes left")
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Tutor evidence log")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    def command(name: str) -> argparse.ArgumentParser:
+        p = sub.add_parser(name)
+        p.add_argument("--data", type=Path, default=None, help="log directory (default: HOME/data)")
+        return p
+
+    due = command("due")
+    due.add_argument("--for", dest="target", choices=("session", "block"), required=True)
+    due.add_argument("--today", type=date.fromisoformat)
+    due.add_argument("--block-date", type=date.fromisoformat)
+    command("level").add_argument("slug")
+    command("summary").add_argument("slug")
+    record = command("record")
+    record.add_argument("slug")
+    record.add_argument("--json", required=True)
+    command("block-action").add_argument("--block-date", type=date.fromisoformat, required=True)
+    command("clock").add_argument("action", choices=("start", "left"))
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = _build_parser().parse_args(argv)
+    directory = args.data or home() / "data"
+    try:
+        if args.command == "due":
+            _cmd_due(args, directory)
+        elif args.command == "level":
+            print(level_from_evidence(_find(load_topics(directory), args.slug).evidence) or "none")
+        elif args.command == "summary":
+            print(confidence_summary(_find(load_topics(directory), args.slug).evidence) or "no evidence")
+        elif args.command == "record":
+            _cmd_record(args, directory)
+        elif args.command == "block-action":
+            _cmd_block_action(args, directory)
+        else:
+            _cmd_clock(args, directory)
+    except LogError as exc:
+        print(exc, file=sys.stderr)
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
