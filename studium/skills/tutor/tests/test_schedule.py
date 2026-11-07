@@ -108,3 +108,18 @@ def test_minutes_left():
     assert minutes_left(start, start + timedelta(minutes=50)) == 10
     assert minutes_left(start, start + timedelta(minutes=75)) == 0
     assert minutes_left(start, start + timedelta(minutes=30), length=45) == 15
+
+
+def test_minutes_left_never_exceeds_length():
+    start = datetime(2026, 11, 6, 10, 0)
+    assert minutes_left(start, start - timedelta(minutes=5)) == 60
+
+
+def test_same_day_failure_then_pass_counts_as_failed_for_ordering():
+    today = date(2026, 12, 1)
+    day = date(2026, 11, 20)
+    mixed = make_topic(slug="mixed", tier="know_exists", next_due=date(2026, 11, 25),
+                       evidence=[_ev(day, "wrong"), _ev(day, "correct")])
+    clean = make_topic(slug="clean", tier="own_it", next_due=date(2026, 11, 1),
+                       evidence=[_ev(day, "correct"), _ev(day, "correct")])
+    assert [t.slug for t in session_opening([clean, mixed], today)] == ["mixed", "clean"]

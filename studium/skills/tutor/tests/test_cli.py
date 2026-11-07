@@ -178,3 +178,52 @@ def test_record_needs_valid_config(tmp_path):
     write_config(tmp_path, "soon")
     out = run(tmp_path, "record", "topic-0", "--json", ev)
     assert out.returncode == 2 and "target_date" in out.stderr
+
+
+def _rec(tmp_path, slug, day, result, **extra):
+    ev = {"date": day, "kind": "state", "result": result, "surprise": True, **extra}
+    out = run(tmp_path, "record", slug, "--json", json.dumps(ev))
+    assert out.returncode == 0, out.stderr
+    return load_topics(topics(tmp_path))[0].next_due
+
+
+def test_three_correct_items_one_day_give_seven_days(tmp_path):
+    seed(tmp_path, 1)
+    assert [_rec(tmp_path, "topic-0", "2026-11-20", "correct") for _ in range(3)] == [date(2026, 11, 27)] * 3
+
+
+def test_wrong_then_correct_same_day_is_failure(tmp_path):
+    seed(tmp_path, 1)
+    _rec(tmp_path, "topic-0", "2026-11-20", "wrong")
+    assert _rec(tmp_path, "topic-0", "2026-11-20", "correct") == date(2026, 11, 22)
+
+
+def test_correct_then_wrong_same_day_is_failure(tmp_path):
+    seed(tmp_path, 1)
+    _rec(tmp_path, "topic-0", "2026-11-20", "correct")
+    assert _rec(tmp_path, "topic-0", "2026-11-20", "wrong") == date(2026, 11, 22)
+
+
+def test_third_passed_day_gets_sixty_days_or_the_own_it_pull(tmp_path):
+    seed(tmp_path, 1)
+    _rec(tmp_path, "topic-0", "2026-10-01", "correct")
+    _rec(tmp_path, "topic-0", "2026-10-10", "correct")
+    assert _rec(tmp_path, "topic-0", "2026-10-20", "correct") == date(2026, 12, 19)
+    assert _rec(tmp_path, "topic-0", "2026-12-20", "correct") == date(2027, 1, 18)
+
+
+def test_failure_day_resets_passes(tmp_path):
+    seed(tmp_path, 1)
+    _rec(tmp_path, "topic-0", "2026-10-01", "correct")
+    _rec(tmp_path, "topic-0", "2026-10-10", "wrong")
+    assert _rec(tmp_path, "topic-0", "2026-10-20", "correct") == date(2026, 10, 27)
+
+
+def test_bool_is_not_an_int_for_confidence_or_history(tmp_path):
+    seed(tmp_path, 1)
+    bad = run(tmp_path, "record", "topic-0", "--json",
+              json.dumps({"date": "2026-11-20", "kind": "state", "result": "correct", "confidence": True}))
+    assert bad.returncode == 2 and "confidence" in bad.stderr
+    _state(tmp_path, overflow_history=[True, 1])
+    out = run(tmp_path, "block-action", "--block-date", "2026-11-20")
+    assert out.returncode == 2 and "overflow_history" in out.stderr

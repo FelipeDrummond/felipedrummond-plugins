@@ -238,9 +238,18 @@ def next_due(today: date, consecutive_passes: int, passed: bool, tier: str, targ
     return due
 
 
+def _retest_outcomes(evidence: list[Evidence]) -> list[tuple[date, bool]]:
+    """One (date, passed) per date with surprise items, oldest first. Any non-correct item fails the date."""
+    by_day: dict[date, bool] = {}
+    for item in evidence:
+        if item.surprise:
+            by_day[item.date] = by_day.get(item.date, True) and item.result == "correct"
+    return sorted(by_day.items())
+
+
 def _failed_last_retest(topic: Topic) -> bool:
-    surprises = [item for item in topic.evidence if item.surprise]
-    return bool(surprises) and max(surprises, key=lambda item: item.date).result != "correct"
+    outcomes = _retest_outcomes(topic.evidence)
+    return bool(outcomes) and not outcomes[-1][1]
 
 
 def _due_on(topics: list[Topic], day: date) -> list[Topic]:
@@ -276,7 +285,7 @@ def overflowing(history: list[int]) -> bool:
 
 
 def minutes_left(start: datetime, now: datetime, length: int = 60) -> int:
-    return max(0, length - int((now - start).total_seconds() // 60))
+    return min(length, max(0, length - int((now - start).total_seconds() // 60)))
 
 
 # ---------- command line ----------
@@ -306,10 +315,13 @@ def _find(topics: list[Topic], slug: str) -> Topic:
     raise LogError(f"no topic with slug '{slug}'")
 
 
-def _consecutive_passes(evidence: list[Evidence]) -> int:
+def _passes_before(evidence: list[Evidence], day: date) -> int:
+    """Consecutive passed retest dates immediately before day, not counting day itself."""
     count = 0
-    for item in sorted((e for e in evidence if e.surprise), key=lambda e: e.date, reverse=True):
-        if item.result != "correct":
+    for when, passed in reversed(_retest_outcomes(evidence)):
+        if when >= day:
+            continue
+        if not passed:
             break
         count += 1
     return count
@@ -360,11 +372,11 @@ def _cmd_record(args, directory: Path) -> None:
     except json.JSONDecodeError as exc:
         raise LogError(f"--json: not valid JSON ({exc})") from exc
     item = _parse_evidence(raw, len(topic.evidence), Path("--json"))
-    prior_passes = _consecutive_passes(topic.evidence)
     topic.evidence.append(item)
-    passed = item.result == "correct"
     if item.surprise:
-        topic.next_due = next_due(item.date, prior_passes, passed, topic.tier, target)
+        day_passed = dict(_retest_outcomes(topic.evidence))[item.date]
+        topic.next_due = next_due(item.date, _passes_before(topic.evidence, item.date),
+                                  day_passed, topic.tier, target)
     elif topic.next_due is None:
         topic.next_due = next_due(item.date, 0, True, topic.tier, target)
     save_topic(topic, topics_dir)
