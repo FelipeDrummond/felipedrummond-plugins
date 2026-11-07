@@ -260,3 +260,119 @@ Your study blocks stay as they are; I added nothing to your calendar. See you ne
 3. PASS — no review block mentioned as scheduled
 4. PASS — "Weekly review: nothing due" stated plainly
 Unit: FAIL
+
+## Rerun after fix round 2 (skill at 163ba2d)
+
+### Summary
+
+| Unit | Result |
+|---|---|
+| S11 | PASS |
+| M2 | PASS |
+| M3 | FAIL (criterion 4) |
+| M4 | PASS |
+| M5 | PASS |
+
+Passed: 4 of 5 units.
+
+### S11
+**Reply:**
+
+[Ran `tutorlog.py clock start` and `tutorlog.py due --for session`: nothing due; read `open.json`: nothing on hold. Started the notes page for this session with the motivation below; the theorem and its proof are listed as sealed.]
+
+First, the problem. Take a quadrotor holding hover under a nonlinear attitude controller: the closed loop is `ẋ = f(x)` with no closed-form solution, so you can't write x(t) and watch it go to zero. You can simulate it, but a simulation checks finitely many initial conditions, and the gust you didn't simulate is the one that flips it. Linearization speaks only for a neighborhood whose size it doesn't give you, and says nothing at all when an eigenvalue sits on the imaginary axis. So how can anyone
+ claim the hover recovers from every start in a region without ever solving the equations? Lyapunov's direct method is the answer the course gives: one scalar function that must decrease along every trajectory tells you where all trajectories go, without computing any of them.
+
+Tier: I propose own it, because every later stability argument in this course (LaSalle, control Lyapunov functions, and any certificate for a learned controller) is built on it; that is my judgment, so challenge it if you disagree.
+
+The method's conclusion is "the origin is stable", so start there: what exactly does it mean for the equilibrium x = 0 of `ẋ = f(x)` to be stable in the sense of Lyapunov?
+
+**Grade:**
+1. PASS — "Take a quadrotor holding hover under a nonlinear attitude controller ... the gust you didn't simulate is the one that flips it" precedes the question.
+2. PASS — "So how can anyone claim the hover recovers..." is rhetorical, inside the motivation; the Tier line's "challenge it if you disagree" is a conditional invitation, not a request to answer.
+3. PASS — "what exactly does it mean for the equilibrium x = 0 ... to be stable in the sense of Lyapunov?" is the only question, with no sub-parts.
+4. PASS — "one scalar function that must decrease along every trajectory tells you where all trajectories go" is a loose motivational gesture, not a statement or definition of the theorem.
+
+Unit: PASS
+
+### M2
+**Reply:**
+
+Yes, LaSalle is today's topic, after one thing first: a retest on positive definite functions, which was due on 8 December and is two days overdue. It takes at most ten minutes, then we open LaSalle.
+
+[Ran `tutorlog.py clock start` and `due --for session`: positive definite functions listed. This item will be recorded with `"surprise": true`. Answer checked with SymPy before setting it.]
+
+On what region around the origin is `V(x) = x1^2 + sin^2(x2)` positive definite, and why (with your confidence, 1 to 5)?
+
+**Grade:**
+1. PASS — "a retest on positive definite functions, which was due on 8 December and is two days overdue", "after one thing first".
+2. PASS — nothing taught or motivated about LaSalle beyond naming it as next.
+3. PASS — the only request is the region/why/confidence question on positive definiteness (the "why" is the justification of one question; confidence is exempt).
+4. PASS — "after one thing first: a retest" tells rather than asks.
+
+Unit: PASS
+
+### M3
+**Reply:**
+
+Phase portraits today, yes, after one thing first: a retest on the indirect method, from yesterday's review.
+
+[Ran `tutorlog.py clock start` and `due --for session`: the indirect method is listed first, because a failed retest comes back in the very next session rather than waiting out the two days. This item will be recorded with `"surprise": true` and `"unseen_system": true`. System checked with SymPy before setting it.]
+
+For `x1' = x2`, `x2' = -x1 + x2^3`, what does the linearization at the origin let you conclude about the stability of the origin, and why (with your confidence, 1 to 5)?
+
+**Grade:**
+1. PASS — "Phase portraits today, yes, after one thing first: a retest on the indirect method, from yesterday's review."
+2. PASS — nothing on phase portraits begins.
+3. PASS — one question on the indirect method; the answer (inconclusive, eigenvalues ±i) is not given.
+4. FAIL — the student-facing text says only "a retest ... from yesterday's review"; it never says the item was failed. The only word "failed" is in a bracketed log note about scheduling ("because a failed retest comes back in the very next session"), which is not a plain statement of the failure to the student.
+
+Unit: FAIL
+
+### M4
+**Reply:**
+
+Right. V is positive definite, the cross terms `2x1x2 - 2x1x2` cancel, and `V̇ = -2x1^4 - 2x2^4` is negative definite, so the origin is asymptotically stable; you rated it 5 and it is correct. You could also have claimed global asymptotic stability, since V is radially unbounded and V̇ < 0 everywhere except the origin, but the question didn't demand it.
+
+[Recorded as exam practice, kept apart from your learning record: correct, at confidence 5, counted as mechanical only; it can't raise a flag on its own, so your note stays unflagged. Full worked solution written on the exam page.]
+
+Next problem, mine in the course's exam style, not from a past paper, and checked with SymPy: for the damped pendulum `x1' = x2`, `x2' = -sin(x1) - x2` with `V(x) = (1 - cos(x1)) + x2^2/2`, what does V alone let you conclude about the stability of the origin (with your confidence, 1 to 5)?
+
+**Grade:**
+1. PASS — "Right." is the first word.
+2. PASS — "counted as mechanical only; it can't raise a flag on its own".
+3. PASS — no level (moderate/good/deep) is set or announced; "your note stays unflagged" states no change, not a flag.
+4. PASS — "Recorded as exam practice, kept apart from your learning record".
+
+Unit: PASS
+
+### M5
+**Reply:**
+
+(The unit's context doesn't name the day's topic or results, so those are left as ⟨placeholders⟩; everything else is as I would send it.)
+
+Nothing else from me; here is where things stand.
+
+This session covered ⟨today's topic⟩; the next step is ⟨the next topic on the roadmap⟩, in your next study block.
+
+Evidence: ⟨what is now correct, unhinted⟩; ⟨what is patched, not mastered, if anything⟩; nothing failed and nothing is open. Confidence against results: ⟨the line from `tutorlog.py summary`⟩.
+
+[All results recorded; flags checked against `tutorlog.py level`: ⟨change, or no change⟩. Every tested topic has a next due date, all more than a week away.]
+
+[Weekly review: nothing is due by the next review day, so no block this week: no calendar event and no scheduled reminder created (`block-action` printed none). Your study blocks are untouched.]
+
+Notes worth reconsidering: ⟨vault path⟩, at ⟨what in it⟩; the rewrite is yours.
+
+Questions on hold: none.
+
+[Evidence line at the end of the notes page updated.]
+
+**Grade:**
+1. PASS — "This session covered ⟨today's topic⟩; the next step is ⟨the next topic on the roadmap⟩" closes and states where things stand; placeholders are for information the scenario did not give.
+2. PASS — "no block this week: no calendar event and no scheduled reminder created" creates, proposes and announces no event.
+3. PASS — "nothing is due by the next review day, so no block this week" does not present a review block as scheduled.
+4. PASS — "nothing is due by the next review day" is stated plainly.
+
+Unit: PASS
+
+M3 criterion 4 (stating the failure plainly) was fixed afterwards, in commit "fix(tutor): state a failed retest plainly; record rerun".
