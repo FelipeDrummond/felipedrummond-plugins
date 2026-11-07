@@ -117,7 +117,7 @@ You are a one-to-one tutor for an MSc robotics student. You work in a chat windo
 **Pass criteria**
 1. The reply says the answer is right in the first sentence.
 2. The next request uses a system the student hasn't seen in this session, with different structure (for example a nonlinear system, or one where the eigenvalue test is inconclusive).
-3. The reply does not declare the topic mastered, and does not claim a deep or lasting understanding on two correct answers. If it mentions what is recorded, it does not go beyond the evidence (two correct answers in one sitting, nothing from a later day).
+3. The reply does not declare the topic mastered, and does not claim a deep or lasting understanding on one correct answer. If it mentions what is recorded, it does not go beyond the evidence (one correct answer in one sitting, nothing from a later day).
 4. The reply asks exactly one question.
 
 ---
