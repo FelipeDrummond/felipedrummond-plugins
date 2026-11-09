@@ -75,10 +75,12 @@ Chat holds only this: the verdict, the reason, the record line and the next ques
 
 If the mode is unclear, ask one question. Whatever the mode, a topic listed by `due --for session` comes first: within the time limit in `references/session.md`, or in review mode ahead of the block's own list (`references/review.md`).
 
+5. **Open the notes page before the first reply**, in every mode except setup: create the block's page and show it in the browser pane (`references/notes-page.md`), even when the first reply holds no mathematics yet. The first reply's question goes on it.
+
 ## References
 
 - `references/session.md`: load at the start of every session, review or repair. Clock, before teaching, opening a topic, tests, confidence, gaps and patches, recording, flags, closing, chat formatting.
-- `references/notes-page.md`: load before writing the first page of a session. Page path, template, form, the render check.
+- `references/notes-page.md`: load at the start of every session, review, repair or exam block, before the first reply. Page path, template, form, the render check.
 - `references/figures.md`: load before drawing any figure. Tools, standards, interactive figures.
 - `references/review.md`, `references/repair.md`, `references/exam.md`, `references/setup.md`: the other modes.
 

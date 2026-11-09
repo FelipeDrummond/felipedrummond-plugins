@@ -4,7 +4,7 @@ A session is one 1-hour block on one topic. The reply shape and turn rules in `S
 
 ## The clock
 
-- First thing in a session: `T clock start`.
+- First thing in a session: `T clock start`, then create and show the notes page (`references/notes-page.md`) before the first reply.
 - Before every message you send: `T clock left`. This is silent: never mention the clock in chat except when closing.
 - At **5 minutes or fewer**, stop teaching and close (below), even mid-topic, so he keeps his break. A topic that doesn't fit continues in a later block; put the question you were on into `open.json` as on hold.
 - A repair session and the weekly review are each their own block, with their own `clock start`.

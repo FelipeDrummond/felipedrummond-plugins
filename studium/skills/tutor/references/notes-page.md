@@ -4,6 +4,8 @@ A plain academic working paper, built up during the session beside the chat. Cha
 
 ## Where it lives and how it is shown
 
+Do these steps at the start of the block, before the first reply, not when the first formula appears. A page that opens only once there is mathematics depends on what the opening message happens to contain, and he is left without one.
+
 1. Sync the assets once per session: `rsync -a S/assets/ HOME/pages/assets/`.
 2. Create the page at `HOME/pages/<course>/session-<n>.html` (next unused `n` for that course) by copying `S/assets/template.html` and filling its placeholders (`<!-- TITLE -->`, `<!-- SUBTITLE -->`, `<!-- SECTIONS -->`, `<!-- SEALED -->`, `<!-- EVIDENCE -->`). It links `../assets/notes.css` and `../assets/figures.js`, so it must sit one folder below `pages/`.
 3. Show it in the app's browser pane with `preview_start` and the name `tutor-pages` (from `HOME/.claude/launch.json`, serving `HOME/pages` at `http://localhost:8765`), then open `http://localhost:8765/<course>/session-<n>.html`. Starting by name works only when the session's folder is `HOME`. Otherwise run `python3 -m http.server 8765 --directory HOME/pages` in the background and open the URL with `preview_start`.
