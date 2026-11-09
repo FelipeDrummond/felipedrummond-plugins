@@ -1,7 +1,7 @@
 {
   "name": "studium",
   "displayName": "Studium",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A one-to-one tutor for STEM coursework that tests before it teaches. It keeps its own evidence log in a private folder outside your Obsidian vault, writes only an understanding flag to your notes, and schedules surprise retests, so nothing counts as understood until you pass again days later.",
   "keywords": [
     "study",
