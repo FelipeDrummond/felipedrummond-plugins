@@ -10,6 +10,7 @@ from pathlib import Path
 
 KINDS = ("state", "mechanical", "conceptual", "flaw", "invent")
 RESULTS = ("correct", "partial", "wrong", "not_answered")
+ERRORS = ("conceptual", "method", "slip")
 TIERS = ("own_it", "by_hand_then_delegate", "know_exists")
 LEVELS = ("moderate", "good", "deep")
 _SLUG = re.compile(r"[a-z0-9][a-z0-9_-]*")
@@ -35,6 +36,7 @@ class Evidence:
     unseen_system: bool = False
     new_variant: bool = False
     exam: bool = False
+    error: str | None = None
     note: str = ""
 
 
@@ -113,11 +115,20 @@ def _parse_evidence(raw, index: int, file: Path) -> Evidence:
     flags = {}
     for flag in ("hinted", "surprise", "unseen_system", "new_variant", "exam"):
         flags[flag] = _typed(raw.get(flag, False), bool, prefix + flag, file)
+    result = _choice(_get(raw, "result", file, prefix), RESULTS, prefix + "result", file)
+    error = raw.get("error")
+    if error is not None:
+        _choice(error, ERRORS, prefix + "error", file)
+        if error == "slip" and result != "correct" and not flags["exam"]:
+            raise _fail(file, prefix + "error", "'slip' goes with result 'correct' outside exam mode: a slip passes")
+        if error != "slip" and result == "correct":
+            raise _fail(file, prefix + "error", f"{error!r} cannot go with result 'correct'")
     return Evidence(
         date=_date(_get(raw, "date", file, prefix), prefix + "date", file),
         kind=_choice(_get(raw, "kind", file, prefix), KINDS, prefix + "kind", file),
-        result=_choice(_get(raw, "result", file, prefix), RESULTS, prefix + "result", file),
+        result=result,
         confidence=confidence,
+        error=error,
         note=_typed(raw.get("note", ""), str, prefix + "note", file),
         **flags,
     )
@@ -277,18 +288,30 @@ def _failed_before(topic: Topic, today: date) -> bool:
     return bool(outcomes) and not outcomes[-1][1] and outcomes[-1][0] < today
 
 
+def error_rank(topic: Topic) -> int:
+    """Priority from the errors still open (not-correct answers since the last passed retest):
+    0 conceptual or untagged, 1 method only, 2 none. Slips never count."""
+    passed = [day for day, ok in _retest_outcomes(topic.evidence) if ok]
+    since = passed[-1] if passed else date.min
+    errors = [item.error for item in topic.evidence
+              if item.date > since and item.result != "correct" and item.error != "slip"]
+    if not errors:
+        return 2
+    return 1 if all(error == "method" for error in errors) else 0
+
+
 def session_opening(topics: list[Topic], today: date, limit: int = 2) -> list[Topic]:
     """Due topics, plus any whose latest retest failed on an earlier day even if not yet due:
-    failed last retest first, then tier, then longest overdue."""
+    failed last retest first, then open error class, then tier, then longest overdue."""
     due = [t for t in topics if (t.next_due is not None and t.next_due <= today) or _failed_before(t, today)]
-    due.sort(key=lambda t: (not _failed_last_retest(t), TIERS.index(t.tier), t.next_due or date.max))
+    due.sort(key=lambda t: (not _failed_last_retest(t), error_rank(t), TIERS.index(t.tier), t.next_due or date.max))
     return due[:limit]
 
 
 def plan_block(topics: list[Topic], block_date: date, capacity: int = 6) -> tuple[list[Topic], int]:
-    """Topics for the review block by tier then longest overdue, and how many didn't fit."""
+    """Topics for the review block by open error class, tier, then longest overdue, and how many didn't fit."""
     due = _due_on(topics, block_date)
-    due.sort(key=lambda t: (TIERS.index(t.tier), t.next_due))
+    due.sort(key=lambda t: (error_rank(t), TIERS.index(t.tier), t.next_due))
     return due[:capacity], max(0, len(due) - capacity)
 
 
@@ -408,6 +431,13 @@ def _cmd_record(args, directory: Path) -> None:
     print(f"recorded; next due {topic.next_due}")
 
 
+def _cmd_slips(directory: Path) -> None:
+    for topic in load_topics(directory / _TOPICS_DIR):
+        for item in topic.evidence:
+            if item.error == "slip":
+                print(f"{topic.slug} {item.date}: {item.note}")
+
+
 def _cmd_block_action(args, directory: Path) -> None:
     state = _read_state(directory)
     chosen, overflow = plan_block(load_topics(directory / _TOPICS_DIR), args.block_date)
@@ -451,6 +481,7 @@ def _build_parser() -> argparse.ArgumentParser:
     record.add_argument("slug")
     record.add_argument("--json", required=True)
     command("block-action").add_argument("--block-date", type=date.fromisoformat, required=True)
+    command("slips")
     command("clock").add_argument("action", choices=("start", "left"))
     return parser
 
@@ -467,6 +498,8 @@ def main(argv: list[str] | None = None) -> int:
             print(confidence_summary(_find(load_topics(directory / _TOPICS_DIR), args.slug).evidence) or "no evidence")
         elif args.command == "record":
             _cmd_record(args, directory)
+        elif args.command == "slips":
+            _cmd_slips(directory)
         elif args.command == "block-action":
             _cmd_block_action(args, directory)
         else:

@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from test_load import make_topic
-from tutorlog import (Evidence, block_action, minutes_left, next_due, overflowing,
+from tutorlog import (Evidence, block_action, error_rank, minutes_left, next_due, overflowing,
                       plan_block, session_opening)
 
 T = date(2027, 2, 1)
@@ -77,7 +77,8 @@ def test_non_surprise_failure_does_not_count_as_failed():
     today = date(2026, 12, 1)
     a = make_topic(slug="a", tier="know_exists", next_due=date(2026, 11, 1),
                    evidence=[_ev(date(2026, 10, 1), "wrong", surprise=False)])
-    b = make_topic(slug="b", tier="own_it", next_due=date(2026, 11, 20), evidence=[])
+    b = make_topic(slug="b", tier="own_it", next_due=date(2026, 11, 20),
+                   evidence=[_ev(date(2026, 10, 1), "wrong", surprise=False)])
     assert [t.slug for t in session_opening([a, b], today)] == ["b", "a"]
 
 
@@ -145,3 +146,44 @@ def test_same_day_failure_then_pass_counts_as_failed_for_ordering():
     clean = make_topic(slug="clean", tier="own_it", next_due=date(2026, 11, 1),
                        evidence=[_ev(day, "correct"), _ev(day, "correct")])
     assert [t.slug for t in session_opening([clean, mixed], today)] == ["mixed", "clean"]
+
+
+def _err(day, error, result="wrong", **over):
+    return Evidence(**({"date": day, "kind": "mechanical", "result": result, "surprise": True, "error": error} | over))
+
+
+def test_error_rank_by_open_error_class():
+    day = date(2026, 11, 10)
+    assert error_rank(make_topic(evidence=[])) == 2
+    assert error_rank(make_topic(evidence=[_err(day, "conceptual")])) == 0
+    assert error_rank(make_topic(evidence=[_err(day, None)])) == 0
+    assert error_rank(make_topic(evidence=[_err(day, "method")])) == 1
+    assert error_rank(make_topic(evidence=[_err(day, "method"), _err(day, "conceptual")])) == 0
+
+
+def test_slips_never_raise_priority():
+    day = date(2026, 11, 10)
+    passed_with_slip = make_topic(evidence=[_err(day, "slip", result="correct")])
+    exam_slip = make_topic(evidence=[_err(day, "slip", exam=True, surprise=False)])
+    assert error_rank(passed_with_slip) == 2
+    assert error_rank(exam_slip) == 2
+
+
+def test_a_passed_retest_closes_earlier_errors():
+    topic = make_topic(evidence=[_err(date(2026, 11, 10), "conceptual"),
+                                 _ev(date(2026, 11, 12), "correct")])
+    assert error_rank(topic) == 2
+
+
+def test_conceptual_error_outranks_tier_and_overdue():
+    today = date(2026, 12, 1)
+    day = date(2026, 11, 30)
+    method = make_topic(slug="method", tier="own_it", next_due=date(2026, 11, 1),
+                        evidence=[_err(day, "method")])
+    concept = make_topic(slug="concept", tier="know_exists", next_due=date(2026, 11, 20),
+                         evidence=[_err(day, "conceptual")])
+    clean = make_topic(slug="clean", tier="own_it", next_due=date(2026, 10, 1), evidence=[])
+    assert [t.slug for t in session_opening([clean, method, concept], today, limit=3)] == [
+        "concept", "method", "clean"]
+    assert [t.slug for t in plan_block([clean, method, concept], today)[0]] == [
+        "concept", "method", "clean"]

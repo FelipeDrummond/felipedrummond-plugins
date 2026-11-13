@@ -274,3 +274,26 @@ def test_record_rejects_confidence_out_of_range(tmp_path):
         out = run(tmp_path, "record", "topic-0", "--json", json.dumps(ev))
         assert out.returncode == 2 and "confidence" in out.stderr
     assert load_topics(topics(tmp_path))[0].evidence == []
+
+
+def test_record_slip_passes_the_retest_and_is_listed(tmp_path):
+    write_config(tmp_path)
+    seed(tmp_path, 1)
+    slip = {"date": "2026-11-13", "kind": "mechanical", "result": "correct", "surprise": True,
+            "error": "slip", "note": "dropped a sign in the last line"}
+    out = run(tmp_path, "record", "topic-0", "--json", json.dumps(slip))
+    assert out.returncode == 0 and "next due 2026-11-20" in out.stdout
+    assert run(tmp_path, "slips").stdout == "topic-0 2026-11-13: dropped a sign in the last line\n"
+
+
+def test_record_rejects_inconsistent_error(tmp_path):
+    write_config(tmp_path)
+    seed(tmp_path, 1)
+    base = {"date": "2026-11-13", "kind": "mechanical"}
+    for extra in ({"result": "wrong", "error": "slip"},
+                  {"result": "correct", "error": "conceptual"},
+                  {"result": "wrong", "error": "numerical"}):
+        out = run(tmp_path, "record", "topic-0", "--json", json.dumps(base | extra))
+        assert out.returncode == 2 and "error" in out.stderr
+    exam = base | {"result": "wrong", "error": "slip", "exam": True}
+    assert run(tmp_path, "record", "topic-0", "--json", json.dumps(exam)).returncode == 0

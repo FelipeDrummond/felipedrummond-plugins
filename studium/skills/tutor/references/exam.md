@@ -35,7 +35,8 @@ T record SLUG --json '{"date": "2027-01-08", "kind": "mechanical", "result": "pa
 - If a topic has no topic file yet, create it first, with every field (`references/session.md`, Recording).
 - One problem touching several topics: record it in each topic file it tests.
 - Flags follow `tutorlog.py level` as in any session (Flags in `references/session.md`).
-- **A wrong or partial exam answer** goes in the topic's `mistakes`, in his words where useful. Set `"retest_without_notice": true` on that topic, with `next_due` within a week, so it comes back by surprise in a normal session. A deep gap it reveals goes to `repairs` in `open.json`, as in any session.
+- **Slips count here, and only here.** An exam grades the final answer, so a slip is recorded with the result it produced (`wrong` or `partial`), `"error": "slip"`, and what slipped in `note`. It sets no retest and no repair: it comes back in exam practice. At the start of an exam block run `T slips` and aim problems at the kinds of slip recorded (signs, matrix arithmetic, units).
+- **A wrong or partial exam answer that is not a slip** goes in the topic's `mistakes`, in his words where useful. Set `"retest_without_notice": true` on that topic, with `next_due` within a week, so it comes back by surprise in a normal session. A deep gap it reveals goes to `repairs` in `open.json`, as in any session.
 
 ## Closing
 

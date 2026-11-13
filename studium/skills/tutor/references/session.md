@@ -12,8 +12,8 @@ A session is one 1-hour block on one topic. The reply shape and turn rules in `S
 
 ## Before teaching
 
-1. **Overdue first.** `T due --for session` lists at most two topics, a failed retest first, then by tier, then the longest overdue. Topics with `"retest_without_notice": true` (a retest you promised) are candidates too, even if `due` doesn't list them; pick by the same order. A topic whose latest retest failed on an earlier day is listed even before its `next_due`, so a failure comes first in the very next session. Spend at most about 10 minutes on retests at the start of the block, as surprise retests (record with `"surprise": true`). Say in the spoken text, not only in the bracket, that it is a retest and on what: "First, a retest on positive definite functions." If the topic failed its last retest, the spoken text says so plainly, as a verdict on past evidence, not softened: "First, a retest on the indirect method: you missed it in yesterday's review." The rest wait. Topics not yet due wait for the weekly block. Retests are only these: the topics `due` lists and the promised ones. A prerequisite question never counts as a retest (record it with `"surprise": false`).
-2. **Questions on hold** from `open.json` come next, after the retests and before any new material.
+1. **Overdue first.** `T due --for session` lists at most two topics, a failed retest first, then by open error class (Error classes, below: conceptual before method), then by tier, then the longest overdue. Topics with `"retest_without_notice": true` (a retest you promised) are candidates too, even if `due` doesn't list them; pick by the same order. A topic whose latest retest failed on an earlier day is listed even before its `next_due`, so a failure comes first in the very next session. Spend at most about 10 minutes on retests at the start of the block, as surprise retests (record with `"surprise": true`). Say in the spoken text, not only in the bracket, that it is a retest and on what: "First, a retest on positive definite functions." If the topic failed its last retest, the spoken text says so plainly, as a verdict on past evidence, not softened: "First, a retest on the indirect method: you missed it in yesterday's review." The rest wait. Topics not yet due wait for the weekly block. Retests are only these: the topics `due` lists and the promised ones. A prerequisite question never counts as a retest (record it with `"surprise": false`).
+2. **Questions on hold** from `open.json` come next, after the retests and before any new material: `high` priority first, then `medium`, then `low`, oldest first within each. If time is short, the `low` ones wait.
 3. **Find where the course is.** Class dates come from his class calendar (read-only), but they don't say which section a lecture reached, and he studies ahead. Ask one question: what has been covered, and what should this session take on?
 4. **Read the scope:** the relevant section of the course's own material (scope and notation come from it; teach in your own order but in its notation), and any matching vault notes. The vault lags lectures by up to a week. A note shows coverage, never understanding.
 5. **List the prerequisites the material assumes**, for the quiz that follows the motivation (Opening a topic, step 2). Leave out a topic he has just skipped: it is named as a known risk in the motivation instead.
@@ -43,6 +43,22 @@ Tests recur, and cover four kinds. Record each with its `kind`:
 - One solved example never closes a topic. He must also handle a system he hasn't seen (`"unseen_system": true`): different structure, not new numbers.
 - Check every exercise and its answer with code before you set it (see Correctness).
 - **Retest without notice.** When he has been patched and appears to have got it, tell him you will ask again later without notice, and in the topic file set `"retest_without_notice": true`; if `next_due` is null or more than about a week away, set it to within a week. Then do it in a later session (Before teaching, step 1). Record that retest with `"surprise": true`, and set `retest_without_notice` back to `false` afterwards, pass or fail.
+
+## Error classes
+
+Every answer that isn't fully right gets one class, recorded as `error`. The class sets its priority in the backlog: reasoning comes back first, and arithmetic comes back only in exam practice.
+
+| Class | `error` | What went wrong | Recorded as | Comes back |
+|---|---|---|---|---|
+| Conceptual | `conceptual` | The idea, the logic or the reasoning: a wrong claim, a missing or circular reason, a definition misread | `wrong` or `partial` | First in every ordering: sessions, repairs, the review block |
+| Method | `method` | He has the idea and can't carry out the procedure | `wrong` or `partial` | After conceptual |
+| Slip | `slip` | Arithmetic, a sign, a copying error, with the reasoning right | `correct`, with the slip in `note` | Exam mode only (`references/exam.md`) |
+
+- **A slip has to earn the label.** Point at the line without saying what is wrong. If he finds and fixes it himself, it is a slip. If he can't, it is `method` or `conceptual`. When in doubt, it is not a slip: an error that looks numerical and comes from misreading what a quantity means (a squared quantity compared with an unsquared one) is conceptual.
+- **A slip passes.** Say "Right, with a slip." and name the line. Record `"result": "correct", "error": "slip"` with what slipped in `note`. It doesn't fail a retest, lower a level, enter `mistakes` or go on hold.
+- **The same slip twice on one topic is promoted:** record the second as `"result": "partial", "error": "method"`, and say so in the record line.
+- `T slips` lists every recorded slip, for exam mode.
+- An untagged wrong answer ranks as conceptual.
 
 ## Confidence
 
@@ -100,10 +116,10 @@ Record after every test answer, in the session, not at the end. Then say what yo
 **One result:**
 
 ```bash
-T record SLUG --json '{"date": "2026-11-13", "kind": "conceptual", "result": "wrong", "confidence": 5, "note": "5/5, wrong: stability claim from a partial check"}'
+T record SLUG --json '{"date": "2026-11-13", "kind": "conceptual", "result": "wrong", "confidence": 5, "error": "conceptual", "note": "5/5, wrong: stability claim from a partial check"}'
 ```
 
-Fields: `date`, `kind` (above), `result` (`correct`, `partial`, `wrong`, `not_answered`), `confidence` (1 to 5, or `null` for not given), and the booleans `hinted` (he needed a hint or guided steps), `surprise` (a retest he wasn't told about in advance, including the overdue ones at the start), `unseen_system`, `new_variant`, `exam`, plus a short `note`. "I don't know" is `not_answered`. A half answer completed later is two records: the partial one, then the completion. Only unhinted correct answers earn a level. `record` prints the next due date; a surprise retest sets it from the whole day's outcome (any non-correct surprise item that day fails the retest).
+Fields: `date`, `kind` (above), `result` (`correct`, `partial`, `wrong`, `not_answered`), `confidence` (1 to 5, or `null` for not given), and the booleans `hinted` (he needed a hint or guided steps), `surprise` (a retest he wasn't told about in advance, including the overdue ones at the start), `unseen_system`, `new_variant`, `exam`, plus `error` (`conceptual`, `method` or `slip`, on every answer that isn't fully right; Error classes above) and a short `note`. "I don't know" is `not_answered`. A half answer completed later is two records: the partial one, then the completion. Only unhinted correct answers earn a level. `record` prints the next due date; a surprise retest sets it from the whole day's outcome (any non-correct surprise item that day fails the retest).
 
 **Skipped at his request:** record no evidence for it (a skip is not a result; existing evidence stays untouched). Add it to `open.json` under `skipped` with the slug, the date and "skipped at the student's request, no credit", and mark the topic in `HOME/data/roadmap.md` as "skipped (YYYY-MM-DD)". No level is credited and no understanding is claimed.
 
@@ -111,13 +127,13 @@ Fields: `date`, `kind` (above), `result` (`correct`, `partial`, `wrong`, `not_an
 
 ```json
 {
-  "on_hold": [{"topic": "SLUG", "since": "YYYY-MM-DD", "question": "what was asked, no answer"}],
-  "repairs": [{"topic": "SLUG", "since": "YYYY-MM-DD", "gap": "what is missing"}],
+  "on_hold": [{"topic": "SLUG", "since": "YYYY-MM-DD", "priority": "high", "question": "what was asked, no answer"}],
+  "repairs": [{"topic": "SLUG", "since": "YYYY-MM-DD", "priority": "high", "gap": "what is missing"}],
   "skipped": [{"topic": "SLUG", "date": "YYYY-MM-DD", "reason": "skipped at the student's request, no credit"}]
 }
 ```
 
-Remove an item when it is dealt with. Retests promised without notice are the topics with `retest_without_notice: true`.
+`priority` is `high` (a conceptual error or an untested patch is behind it, or it opens new material the course needs next), `medium` (a method to carry out) or `low` (routine computation left unfinished). An item without one counts as `high`. Remove an item when it is dealt with. Retests promised without notice are the topics with `retest_without_notice: true`.
 
 ## Flags
 

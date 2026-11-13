@@ -80,7 +80,7 @@ Load `references/session.md` too: the reply shape, clock, recording, confidence,
 2. `T clock start`. The review is its own block.
 3. **The agenda**, in this order, with no topic twice:
    1. Topics from `T due --for session` (failed retests come first there).
-   2. Topics from `T due --for block` (today's date), in its order: tier, then longest overdue. Keep the `overflow: N` number it prints.
+   2. Topics from `T due --for block` (today's date), in its order: open error class (conceptual before method), then tier, then longest overdue. Keep the `overflow: N` number it prints.
    3. Topics with `"retest_without_notice": true` not already listed, if time remains.
 
    The clock, not the count, decides how far you get. Topics not reached stay due and come up in the next session or block.
@@ -88,7 +88,7 @@ Load `references/session.md` too: the reply shape, clock, recording, confidence,
    1. **Read, silently:** the topic file (`mistakes`, `evidence`) and its vault note (`flag.py find`). Show him nothing from them.
    2. **Explain from memory:** one question asking him to state or explain the topic's core result without looking (kind `state` or `conceptual`).
    3. **New questions:** an unseen system (different structure, not new numbers), aimed at his recorded mistakes. Check each with code before setting it.
-   4. **Record every answer** with `"surprise": true` (he knew a review was coming, not the questions), plus `"unseen_system": true` where it applies. All of a topic's items on one date are one retest: any answer that isn't correct fails it, and `record` sets the next date from that (a failure sets `next_due` 2 days on, but `due --for session` lists a failed topic first from the next day, in any session, so it doesn't wait for the next block). Set `retest_without_notice` to `false` after it, and `patched` to `false` only if the retest passed.
+   4. **Record every answer** with `"surprise": true` (he knew a review was coming, not the questions), plus `"unseen_system": true` where it applies. All of a topic's items on one date are one retest: any answer that isn't correct fails it (a slip is recorded as correct and doesn't; Error classes in `references/session.md`), and `record` sets the next date from that (a failure sets `next_due` 2 days on, but `due --for session` lists a failed topic first from the next day, in any session, so it doesn't wait for the next block). Set `retest_without_notice` to `false` after it, and `patched` to `false` only if the retest passed.
    5. **Update the flag** (Flags, in `references/session.md`), and say in the record line whether the retest passed or failed.
    6. **An incomplete answer:** say what is missing and ask for it through a concrete case to work, without supplying the rule. **A gap that appears** is handled by the gap policy in `references/session.md` (When a gap appears): a small patch is allowed, then recorded as patched, and a deep gap goes to `repairs`.
 5. **Page:** the review's notes page is `HOME/pages/reviews/review-YYYY-MM-DD.html`, built as in `references/notes-page.md`.

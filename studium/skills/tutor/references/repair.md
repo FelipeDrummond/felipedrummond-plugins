@@ -4,7 +4,7 @@ A repair is one 1-hour block on one deep gap: a prerequisite the course assumes 
 
 ## Which gap
 
-- Repairs waiting are in `HOME/data/open.json` under `repairs`. If he names one, take it; otherwise the oldest.
+- Repairs waiting are in `HOME/data/open.json` under `repairs`. If he names one, take it; otherwise the highest `priority`, and the oldest within it.
 - The tutor adds no calendar event for a repair; he starts it in one of his own study blocks. Until it is done, a waiting repair counts as an unclear mode when you pick the mode at the start of a run (`SKILL.md`): ask the one question, whether this block is the repair. If it has waited more than a week, say how long in that question.
 - One gap per block. If the gap is wider than an hour, cut it at a point he can be tested on, and leave the rest in `repairs`.
 
